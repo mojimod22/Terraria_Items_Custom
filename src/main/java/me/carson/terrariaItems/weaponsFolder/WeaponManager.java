@@ -15,6 +15,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 
@@ -125,26 +126,39 @@ public class WeaponManager implements Listener {
         lastClickTime.put(player.getUniqueId(), currentTime);
 
         if(!player.hasCooldown(heldItem)){
-            weapon.leftActivate(player);
-            player.setCooldown(heldItem, weapon.cooldown);
-        }
-        event.setCancelled(true);
-    }
+    weapon.leftActivate(player);
+    damageWeapon(heldItem);
+    player.setCooldown(heldItem, weapon.cooldown);
+}
 
-    @EventHandler
+event.setCancelled(true);
+}
+
+        @EventHandler
     public void onRightClick(PlayerInteractEvent event) {
-        if (!(event.getAction() == Action.RIGHT_CLICK_AIR|| event.getAction() == Action.RIGHT_CLICK_BLOCK)){return;}
-        if(event.getClickedBlock()!=null){
-            if(event.getClickedBlock().getType().isInteractable()){
+        if (!(event.getAction() == Action.RIGHT_CLICK_AIR
+                || event.getAction() == Action.RIGHT_CLICK_BLOCK)) {
+            return;
+        }
+
+        if (event.getClickedBlock() != null) {
+            if (event.getClickedBlock().getType().isInteractable()) {
                 return;
             }
         }
-        Player player = event.getPlayer();
-        ItemStack heldItem= event.getItem();
-        if(heldItem==null){return;}
 
-        Weapon weapon= getWeapon(heldItem);
-        if(weapon==null){return;}
+        Player player = event.getPlayer();
+        ItemStack heldItem = event.getItem();
+
+        if (heldItem == null) {
+            return;
+        }
+
+        Weapon weapon = getWeapon(heldItem);
+
+        if (weapon == null) {
+            return;
+        }
 
         long currentTime = System.currentTimeMillis();
         long lastTime = lastClickTime.getOrDefault(player.getUniqueId(), 0L);
@@ -152,16 +166,43 @@ public class WeaponManager implements Listener {
         if (currentTime - lastTime < 10) {
             return;
         }
+
         lastClickTime.put(player.getUniqueId(), currentTime);
 
-
-        if(!player.hasCooldown(heldItem)){
+        if (!player.hasCooldown(heldItem)) {
             weapon.rightActivate(player);
+            damageWeapon(heldItem);
             player.setCooldown(heldItem, weapon.cooldown);
         }
+
         event.setCancelled(true);
     }
 
+    private void damageWeapon(ItemStack item) {
+        if (item == null || !item.hasItemMeta()) {
+            return;
+        }
+
+        if (!(item.getItemMeta() instanceof Damageable damageable)) {
+            return;
+        }
+
+        int maxDurability = item.getType().getMaxDurability();
+
+        if (maxDurability <= 0) {
+            return;
+        }
+
+        int newDamage = damageable.getDamage() + 1;
+
+        if (newDamage >= maxDurability) {
+            item.setAmount(0);
+            return;
+        }
+
+        damageable.setDamage(newDamage);
+        item.setItemMeta(damageable);
+    }
     public Weapon getWeapon(ItemStack item){
         if(item==null|| !item.hasItemMeta()){return null;}
         String weaponId= item.getItemMeta().getPersistentDataContainer().get(weaponKey, PersistentDataType.STRING);
