@@ -51,7 +51,7 @@ public abstract class Weapon {
     public ItemStack createItem() {
         ItemStack weapon = new ItemStack(baseMaterial);
         ItemMeta meta = weapon.getItemMeta();
-        meta.setUnbreakable(true);
+        meta.setUnbreakable(false);
         meta.setDisplayName(net.md_5.bungee.api.ChatColor.of(rarity)+lang.get("weapons",name));
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
         meta.setLore(new ArrayList<>(lang.getList("weapons",lore)));
