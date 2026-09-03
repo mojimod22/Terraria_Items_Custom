@@ -57,6 +57,8 @@ public final class TerrariaItems extends JavaPlugin{
 
         CustomRecipeDiscoverManager.initialize(this);
 
+    new TimedItemManager(this);
+
         CustomRecipeManager customRecipeManager = new CustomRecipeManager(this);
         customRecipeManager.registerAll();
         Bukkit.getPluginManager().registerEvents(new RecipeValidationListener(customRecipeManager), this);
