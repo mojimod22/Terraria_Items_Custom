@@ -71,11 +71,11 @@ public class CustomSkeletons extends CustomEnemy implements Listener {
                 case 1 ->{
                     if(skeleton.getWorld().hasStorm()){
                         if(snowyBiomes.contains(location.getBlock().getBiome())){
-                            if(Math.random()<0.075){
+                            if(Math.random()<0.50){
                                 spawnIceGolem(skeleton);
                             }
                         } else if (desertBiomes.contains(location.getBlock().getBiome())) {
-                            if(Math.random()<0.075){
+                            if(Math.random()<0.50){
                                 spawnSandElemental(skeleton);
                             }
                         }
