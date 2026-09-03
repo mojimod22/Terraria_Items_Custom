@@ -6,6 +6,7 @@ import me.carson.terrariaItems.weaponsFolder.weapons.magicFolder.magicWeapons.*;
 import me.carson.terrariaItems.weaponsFolder.weapons.meleeFolder.melee.*;
 import me.carson.terrariaItems.weaponsFolder.weapons.rougeFolder.rouge.*;
 import me.carson.terrariaItems.weaponsFolder.weapons.throwableFolder.throwablesFolder.*;
+import me.carson.terrariaItems.handlers.TimedItemManager;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
@@ -26,8 +27,10 @@ public class WeaponManager implements Listener {
     private final HashMap<String, Weapon> weaponList = new HashMap<>();
     private final NamespacedKey weaponKey;;
     private final HashMap<UUID, Long> lastClickTime = new HashMap<>();
+    private final TimedItemManager timedItemManager;
 
     public WeaponManager(Plugin plugin) {
+        timedItemManager = TimedItemManager.getInstance();
         weaponKey = new NamespacedKey(plugin, "custom_item_id");
 
         weaponList.put("MoltenFury",new MoltenFury(plugin));
@@ -125,9 +128,15 @@ public class WeaponManager implements Listener {
         }
         lastClickTime.put(player.getUniqueId(), currentTime);
 
-        if(!player.hasCooldown(heldItem)){
+        if (!player.hasCooldown(heldItem)) {
+    if (timedItemManager != null &&
+            !timedItemManager.canUse(player, heldItem)) {
+        event.setCancelled(true);
+        return;
+    }
+
     weapon.leftActivate(player);
-    damageWeapon(heldItem);
+    damageWeapon(player, heldItem);
     player.setCooldown(heldItem, weapon.cooldown);
 }
 
@@ -170,43 +179,61 @@ event.setCancelled(true);
         lastClickTime.put(player.getUniqueId(), currentTime);
 
         if (!player.hasCooldown(heldItem)) {
-            weapon.rightActivate(player);
-            damageWeapon(heldItem);
-            player.setCooldown(heldItem, weapon.cooldown);
-        }
+    if (timedItemManager != null &&
+            !timedItemManager.canUse(player, heldItem)) {
+        event.setCancelled(true);
+        return;
+    }
+
+    weapon.rightActivate(player);
+    damageWeapon(player, heldItem);
+    player.setCooldown(heldItem, weapon.cooldown);
+}
 
         event.setCancelled(true);
     }
 
-    private void damageWeapon(ItemStack item) {
-        if (item == null || !item.hasItemMeta()) {
-            return;
-        }
-
-        if (!(item.getItemMeta() instanceof Damageable damageable)) {
-            return;
-        }
-
-        int maxDurability = item.getType().getMaxDurability();
-
-        if (maxDurability <= 0) {
-            return;
-        }
-
-        int newDamage = damageable.getDamage() + 1;
-
-        if (newDamage >= maxDurability) {
-            item.setAmount(0);
-            return;
-        }
-
-        damageable.setDamage(newDamage);
-        item.setItemMeta(damageable);
+    private void damageWeapon(Player player, ItemStack item) {
+    if (item == null || !item.hasItemMeta()) {
+        return;
     }
-    public Weapon getWeapon(ItemStack item){
-        if(item==null|| !item.hasItemMeta()){return null;}
-        String weaponId= item.getItemMeta().getPersistentDataContainer().get(weaponKey, PersistentDataType.STRING);
-        return weaponList.get(weaponId);
+
+    // Item berlisensi tidak memakai durability
+    if (timedItemManager != null &&
+            timedItemManager.isLicensed(item)) {
+        return;
+    }
+
+    if (!(item.getItemMeta() instanceof Damageable damageable)) {
+        return;
+    }
+
+    // Gunakan custom max damage dari ItemMeta
+    if (!damageable.hasMaxDamage()) {
+        return;
+    }
+
+    int maxDurability = damageable.getMaxDamage();
+
+    if (maxDurability <= 0) {
+        return;
+    }
+
+    int newDamage = damageable.getDamage() + 1;
+
+    if (newDamage >= maxDurability) {
+        player.getInventory().setItemInMainHand(null);
+        player.sendMessage("§cWeapon kamu sudah habis durability!");
+        return;
+    }
+
+    damageable.setDamage(newDamage);
+    item.setItemMeta(damageable);
+}
+public Weapon getWeapon(ItemStack item){
+    if(item==null|| !item.hasItemMeta()){return null;}
+    String weaponId= item.getItemMeta().getPersistentDataContainer().get(weaponKey, PersistentDataType.STRING);
+    return weaponList.get(weaponId);
     }
 
 
