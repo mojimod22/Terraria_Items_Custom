@@ -56,9 +56,9 @@ public abstract class Weapon {
     // Custom durability untuk semua Terraria weapon.
     // Tidak bergantung pada durability material vanilla.
     if (meta instanceof Damageable damageable) {
-        damageable.setUnbreakable(false);
-        damageable.setMaxDamage(250);
-        damageable.resetDamage();
+    damageable.setMaxDamage(250);
+    damageable.setDamage(0);
+    meta = damageable;
     }
 
     meta.setDisplayName(
