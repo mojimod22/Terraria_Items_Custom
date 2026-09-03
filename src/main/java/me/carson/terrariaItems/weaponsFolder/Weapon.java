@@ -11,6 +11,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
@@ -49,21 +50,61 @@ public abstract class Weapon {
     }
 
     public ItemStack createItem() {
-        ItemStack weapon = new ItemStack(baseMaterial);
-        ItemMeta meta = weapon.getItemMeta();
-        meta.setUnbreakable(false);
-        meta.setDisplayName(net.md_5.bungee.api.ChatColor.of(rarity)+lang.get("weapons",name));
-        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
-        meta.setLore(new ArrayList<>(lang.getList("weapons",lore)));
-        NamespacedKey key = new NamespacedKey(plugin, "custom_item_id");
-        meta.getPersistentDataContainer().set(key, PersistentDataType.STRING, id);
-        meta.setItemModel(new NamespacedKey("terraria", texture));
-        meta.getPersistentDataContainer().set(unplaceableKey, PersistentDataType.BYTE, (byte) 1);
-        meta.getPersistentDataContainer().set(customItemKey, PersistentDataType.BYTE, (byte) 1);
-        meta.setMaxStackSize(Integer.valueOf(1));
-        weapon.setItemMeta(meta);
-        return weapon;
+    ItemStack weapon = new ItemStack(baseMaterial);
+    ItemMeta meta = weapon.getItemMeta();
+
+    // Custom durability untuk semua Terraria weapon.
+    // Tidak bergantung pada durability material vanilla.
+    if (meta instanceof Damageable damageable) {
+        damageable.setUnbreakable(false);
+        damageable.setMaxDamage(250);
+        damageable.resetDamage();
     }
+
+    meta.setDisplayName(
+            net.md_5.bungee.api.ChatColor.of(rarity)
+                    + lang.get("weapons", name)
+    );
+
+    meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+
+    meta.setLore(
+            new ArrayList<>(
+                    lang.getList("weapons", lore)
+            )
+    );
+
+    NamespacedKey key =
+            new NamespacedKey(plugin, "custom_item_id");
+
+    meta.getPersistentDataContainer().set(
+            key,
+            PersistentDataType.STRING,
+            id
+    );
+
+    meta.setItemModel(
+            new NamespacedKey("terraria", texture)
+    );
+
+    meta.getPersistentDataContainer().set(
+            unplaceableKey,
+            PersistentDataType.BYTE,
+            (byte) 1
+    );
+
+    meta.getPersistentDataContainer().set(
+            customItemKey,
+            PersistentDataType.BYTE,
+            (byte) 1
+    );
+
+    meta.setMaxStackSize(1);
+
+    weapon.setItemMeta(meta);
+
+    return weapon;
+}
 
     public boolean isThisItem(ItemStack item) {
         if (item == null || !item.hasItemMeta()) return false;
