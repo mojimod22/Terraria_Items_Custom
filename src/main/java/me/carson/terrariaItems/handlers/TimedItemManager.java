@@ -146,9 +146,10 @@ public class TimedItemManager implements Listener {
         );
 
         if (meta instanceof Damageable damageable) {
-            damageable.setUnbreakable(true);
-            damageable.resetDamage();
-        }
+    damageable.setUnbreakable(true);
+    damageable.setDamage(0);
+}
+        
 
         item.setItemMeta(meta);
 
