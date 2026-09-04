@@ -46,6 +46,7 @@ import me.carson.terrariaItems.weaponsFolder.weapons.magicFolder.magicWeapons.*;
 import me.carson.terrariaItems.weaponsFolder.weapons.meleeFolder.melee.*;
 import me.carson.terrariaItems.weaponsFolder.weapons.rougeFolder.rouge.*;
 import me.carson.terrariaItems.weaponsFolder.weapons.throwableFolder.throwablesFolder.*;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
@@ -65,14 +66,30 @@ import java.util.List;
 public class TICommand implements CommandExecutor, TabCompleter {
 
     private final TerrariaItems plugin;
-    private final AccessoryManager accessoryManagerInstance = AccessoryManager.getInstance();
-    private final PlayerDataHandler playerInstance = PlayerDataHandler.getInstance();
-    private final ResetHandler resetInstance = ResetHandler.getInstance();
-    private final WorldDataHandler worldDataHandler = WorldDataHandler.getInstance();
-    private final VanityManager vanityManagerInstance = VanityManager.getInstance();
-    private final BloodMoonManager bloodMoonManagerInstance = BloodMoonManager.getInstance();
-    private final CustomPotionHandler customPotionHandler = CustomPotionHandler.getInstance();
-    private final TILangManager lang = TILangManager.getInstance();
+
+    private final AccessoryManager accessoryManagerInstance =
+            AccessoryManager.getInstance();
+
+    private final PlayerDataHandler playerInstance =
+            PlayerDataHandler.getInstance();
+
+    private final ResetHandler resetInstance =
+            ResetHandler.getInstance();
+
+    private final WorldDataHandler worldDataHandler =
+            WorldDataHandler.getInstance();
+
+    private final VanityManager vanityManagerInstance =
+            VanityManager.getInstance();
+
+    private final BloodMoonManager bloodMoonManagerInstance =
+            BloodMoonManager.getInstance();
+
+    private final CustomPotionHandler customPotionHandler =
+            CustomPotionHandler.getInstance();
+
+    private final TILangManager lang =
+            TILangManager.getInstance();
 
     public TICommand(TerrariaItems plugin) {
         this.plugin = plugin;
@@ -100,7 +117,9 @@ public class TICommand implements CommandExecutor, TabCompleter {
         switch (args[0].toLowerCase()) {
 
             case "toggle_blood_moon" -> {
+
                 if (sender.isOp()) {
+
                     worldDataHandler.setBloodMoonEnabled(
                             !worldDataHandler.getBloodMoonEnabled()
                     );
@@ -113,6 +132,7 @@ public class TICommand implements CommandExecutor, TabCompleter {
                     worldDataHandler.save();
 
                 } else {
+
                     sender.sendMessage(
                             ChatColor.RED
                                     + "You do not have permission to use this command"
@@ -121,7 +141,9 @@ public class TICommand implements CommandExecutor, TabCompleter {
             }
 
             case "toggle_prehardmode" -> {
+
                 if (sender.isOp()) {
+
                     worldDataHandler.setPreHardmodeEnabled(
                             !worldDataHandler.getPreHardmodeEnabled()
                     );
@@ -134,6 +156,7 @@ public class TICommand implements CommandExecutor, TabCompleter {
                     worldDataHandler.save();
 
                 } else {
+
                     sender.sendMessage(
                             ChatColor.RED
                                     + "You do not have permission to use this command"
@@ -142,7 +165,9 @@ public class TICommand implements CommandExecutor, TabCompleter {
             }
 
             case "toggle_hardmode" -> {
+
                 if (sender.isOp()) {
+
                     worldDataHandler.setHardmodeEnabled(
                             !worldDataHandler.getHardmodeEnabled()
                     );
@@ -155,6 +180,7 @@ public class TICommand implements CommandExecutor, TabCompleter {
                     worldDataHandler.save();
 
                 } else {
+
                     sender.sendMessage(
                             ChatColor.RED
                                     + "You do not have permission to use this command"
@@ -163,16 +189,20 @@ public class TICommand implements CommandExecutor, TabCompleter {
             }
 
             case "summon_blood_moon" -> {
+
                 if (sender.isOp()) {
 
                     for (World world : sender.getServer().getWorlds()) {
 
-                        if (world.getEnvironment() == World.Environment.NORMAL) {
+                        if (world.getEnvironment()
+                                == World.Environment.NORMAL) {
+
                             bloodMoonManagerInstance.startBloodMoon(world);
                         }
                     }
 
                 } else {
+
                     sender.sendMessage(
                             ChatColor.RED
                                     + "You do not have permission to use this command"
@@ -199,53 +229,58 @@ public class TICommand implements CommandExecutor, TabCompleter {
                  * OLD:
                  * /ti give <item>
                  *
-                 * NEW:
+                 * LICENSE:
                  * /ti give <player> <item> <amount> <duration>
                  *
+                 * DURABILITY:
+                 * /ti give <player> <item> <amount> <durability>
+                 *
                  * Examples:
+                 *
+                 * /ti give minishark
+                 *
                  * /ti give Steve minishark 1 7d
-                 * /ti give Steve minishark 1 14d
+                 *
                  * /ti give Steve minishark 1 permanent
+                 *
+                 * /ti give Steve enchanted_sword 1 100
+                 *
+                 * /ti give Steve enchanted_sword 1 1000
+                 *
+                 * /ti give Steve enchanted_sword 1 2000
                  *
                  * ====================================================
                  */
 
                 case "give" -> {
 
-                    if (!player.hasPermission("terrariaitems.sub.give")) {
+                    if (!player.hasPermission(
+                            "terrariaitems.sub.give")) {
+
                         player.sendMessage(
                                 ChatColor.RED
                                         + "You do not have permission to use /ti give."
                         );
+
                         return true;
                     }
 
                     Player targetPlayer = player;
 
                     boolean licensedGive = false;
-        int requestedAmount = 1;
 
-        String duration = null;
-        Integer customDurability = null;
+                    int requestedAmount = 1;
+
+                    String duration = null;
+
+                    Integer customDurability = null;
 
                     String itemName;
 
                     /*
                      * =================================================
-                     * DETEKSI FORMAT COMMAND
+                     * FORMAT COMMAND
                      * =================================================
-                     *
-                     * Kalau args hanya 2:
-                     *
-                     * /ti give minishark
-                     *
-                     * maka gunakan MODE LAMA.
-                     *
-                     * Kalau args >= 3:
-                     *
-                     * /ti give Steve minishark 1 7d
-                     *
-                     * maka wajib menggunakan format lengkap.
                      */
 
                     if (args.length >= 3) {
@@ -257,13 +292,19 @@ public class TICommand implements CommandExecutor, TabCompleter {
                                     "§7/ti give <item>"
                             );
                             player.sendMessage(
-                                    "§7/ti give <player> <item> <amount> <duration>"
+                                    "§7/ti give <player> <item> <amount> <duration|durability>"
                             );
+
                             player.sendMessage(
-                                    "§7Contoh: §e/ti give Steve minishark 1 7d"
+                                    "§7License: §e/ti give Steve minishark 1 7d"
                             );
+
                             player.sendMessage(
-                                    "§7Contoh: §e/ti give Steve minishark 1 permanent"
+                                    "§7Permanent: §e/ti give Steve minishark 1 permanent"
+                            );
+
+                            player.sendMessage(
+                                    "§7Durability: §e/ti give Steve enchanted_sword 1 1000"
                             );
 
                             return true;
@@ -273,7 +314,8 @@ public class TICommand implements CommandExecutor, TabCompleter {
                          * PLAYER
                          */
 
-                        targetPlayer = Bukkit.getPlayerExact(args[1]);
+                        targetPlayer =
+                                Bukkit.getPlayerExact(args[1]);
 
                         if (targetPlayer == null) {
 
@@ -289,7 +331,8 @@ public class TICommand implements CommandExecutor, TabCompleter {
                          * ITEM
                          */
 
-                        itemName = args[2].toLowerCase();
+                        itemName =
+                                args[2].toLowerCase();
 
                         /*
                          * AMOUNT
@@ -297,7 +340,8 @@ public class TICommand implements CommandExecutor, TabCompleter {
 
                         try {
 
-                            requestedAmount = Integer.parseInt(args[3]);
+                            requestedAmount =
+                                    Integer.parseInt(args[3]);
 
                             if (requestedAmount <= 0) {
 
@@ -327,135 +371,100 @@ public class TICommand implements CommandExecutor, TabCompleter {
                         }
 
                         /*
- * ============================================================
- * DURATION / CUSTOM DURABILITY
- * ============================================================
- *
- * 7d / 14d / 30d / permanent
- * = LICENSE
- *
- * 100 - 2000
- * = CUSTOM DURABILITY
- * ============================================================
- */
-
-String finalArgument = args[4].toLowerCase();
-
-/*
- * LICENSE MODE
- */
-if (finalArgument.equals("permanent")
-        || finalArgument.matches("\\d+d")) {
-
-    duration = finalArgument;
-    licensedGive = true;
-
-    if (!duration.equals("permanent")) {
-
-        try {
-
-            long days = Long.parseLong(
-                    duration.substring(
-                            0,
-                            duration.length() - 1
-                    )
-            );
-
-            if (days <= 0) {
-
-                player.sendMessage(
-                        "§cDurasi harus lebih dari 0 hari."
-                );
-
-                return true;
-            }
-
-        } catch (NumberFormatException exception) {
-
-            player.sendMessage(
-                    "§cDurasi tidak valid."
-            );
-
-            return true;
-        }
-    }
-
-/*
- * CUSTOM DURABILITY MODE
- */
-} else {
-
-    try {
-
-        customDurability = Integer.parseInt(finalArgument);
-
-        if (customDurability < 100
-                || customDurability > 2000) {
-
-            player.sendMessage(
-                    "§cDurability harus antara §e100 §cdan §e2000."
-            );
-
-            return true;
-        }
-
-    } catch (NumberFormatException exception) {
-
-        player.sendMessage(
-                "§cNilai terakhir harus berupa:"
-        );
-
-        player.sendMessage(
-                "§7Durability: §e100-2000"
-        );
-
-        player.sendMessage(
-                "§7Duration: §e7d, 14d, 30d, permanent"
-        );
-
-        return true;
-    }
-}
-
-                        licensedGive = true;
-
-                        /*
-                         * PERMANENT
+                         * =================================================
+                         * DURATION / CUSTOM DURABILITY
+                         * =================================================
+                         *
+                         * LICENSE:
+                         *
+                         * permanent
+                         * 1d
+                         * 3d
+                         * 7d
+                         * 14d
+                         * 30d
+                         * 60d
+                         * 90d
+                         * 365d
+                         *
+                         * CUSTOM DURABILITY:
+                         *
+                         * 100 - 2000
+                         *
+                         * =================================================
                          */
 
-                        if (!duration.equals("permanent")
-                                && !duration.matches("\\d+d")) {
-
-                            player.sendMessage(
-                                    "§cDurasi tidak valid."
-                            );
-
-                            player.sendMessage(
-                                    "§7Contoh: §e7d §7/ §e14d §7/ §e30d §7/ §epermanent"
-                            );
-
-                            return true;
-                        }
+                        String finalArgument =
+                                args[4].toLowerCase();
 
                         /*
-                         * CHECK DAYS
+                         * =================================================
+                         * LICENSE MODE
+                         * =================================================
                          */
 
-                        if (!duration.equals("permanent")) {
+                        if (finalArgument.equals("permanent")
+                                || finalArgument.matches("\\d+d")) {
+
+                            duration = finalArgument;
+
+                            licensedGive = true;
+
+                            /*
+                             * CHECK DAYS
+                             */
+
+                            if (!duration.equals("permanent")) {
+
+                                try {
+
+                                    long days =
+                                            Long.parseLong(
+                                                    duration.substring(
+                                                            0,
+                                                            duration.length() - 1
+                                                    )
+                                            );
+
+                                    if (days <= 0) {
+
+                                        player.sendMessage(
+                                                "§cDurasi harus lebih dari 0 hari."
+                                        );
+
+                                        return true;
+                                    }
+
+                                } catch (NumberFormatException exception) {
+
+                                    player.sendMessage(
+                                            "§cDurasi tidak valid."
+                                    );
+
+                                    return true;
+                                }
+                            }
+
+                        /*
+                         * =================================================
+                         * CUSTOM DURABILITY MODE
+                         * =================================================
+                         */
+
+                        } else {
 
                             try {
 
-                                long days = Long.parseLong(
-                                        duration.substring(
-                                                0,
-                                                duration.length() - 1
-                                        )
-                                );
+                                customDurability =
+                                        Integer.parseInt(
+                                                finalArgument
+                                        );
 
-                                if (days <= 0) {
+                                if (customDurability < 100
+                                        || customDurability > 2000) {
 
                                     player.sendMessage(
-                                            "§cDurasi harus lebih dari 0 hari."
+                                            "§cDurability harus antara §e100 §cdan §e2000."
                                     );
 
                                     return true;
@@ -464,7 +473,15 @@ if (finalArgument.equals("permanent")
                             } catch (NumberFormatException exception) {
 
                                 player.sendMessage(
-                                        "§cDurasi tidak valid."
+                                        "§cNilai terakhir harus berupa:"
+                                );
+
+                                player.sendMessage(
+                                        "§7Durability: §e100-2000"
+                                );
+
+                                player.sendMessage(
+                                        "§7Duration: §e1d, 3d, 7d, 14d, 30d, 60d, 90d, 365d, permanent"
                                 );
 
                                 return true;
@@ -490,16 +507,14 @@ if (finalArgument.equals("permanent")
                             return true;
                         }
 
-                        itemName = args[1].toLowerCase();
+                        itemName =
+                                args[1].toLowerCase();
                     }
 
                     /*
                      * ====================================================
-                     * SIMPAN INVENTORY SEBELUM GIVE
+                     * SAVE INVENTORY BEFORE GIVE
                      * ====================================================
-                     *
-                     * Digunakan untuk mengetahui item mana yang baru
-                     * dimasukkan sehingga license bisa ditempelkan.
                      */
 
                     ItemStack[] inventoryBefore =
@@ -515,95 +530,65 @@ if (finalArgument.equals("permanent")
 
                     switch (itemName) {
 
-                        case "cosmolight" -> {
-                            targetPlayer.getInventory().addItem(
-                                    Cosmolight.getItem(plugin)
-                            );
-                        }
+                        case "cosmolight" -> targetPlayer.getInventory().addItem(
+                                Cosmolight.getItem(plugin)
+                        );
 
-                        case "rod_of_discord" -> {
-                            targetPlayer.getInventory().addItem(
-                                    RodOfDiscord.getItem(plugin)
-                            );
-                        }
+                        case "rod_of_discord" -> targetPlayer.getInventory().addItem(
+                                RodOfDiscord.getItem(plugin)
+                        );
 
-                        case "momentum_capacitor" -> {
-                            targetPlayer.getInventory().addItem(
-                                    MomentumCapacitor.getItem(plugin)
-                            );
-                        }
+                        case "momentum_capacitor" -> targetPlayer.getInventory().addItem(
+                                MomentumCapacitor.getItem(plugin)
+                        );
 
-                        case "stormbow" -> {
-                            targetPlayer.getInventory().addItem(
-                                    DaedalusStormbow.getItem(plugin)
-                            );
-                        }
+                        case "stormbow" -> targetPlayer.getInventory().addItem(
+                                DaedalusStormbow.getItem(plugin)
+                        );
 
-                        case "cloud_bottle" -> {
-                            targetPlayer.getInventory().addItem(
-                                    CloudInABottle.getItem(plugin)
-                            );
-                        }
+                        case "cloud_bottle" -> targetPlayer.getInventory().addItem(
+                                CloudInABottle.getItem(plugin)
+                        );
 
-                        case "aglet" -> {
-                            targetPlayer.getInventory().addItem(
-                                    Aglet.getItem(plugin)
-                            );
-                        }
+                        case "aglet" -> targetPlayer.getInventory().addItem(
+                                Aglet.getItem(plugin)
+                        );
 
-                        case "obsidian_skull" -> {
-                            targetPlayer.getInventory().addItem(
-                                    ObsidianSkull.getItem(plugin)
-                            );
-                        }
+                        case "obsidian_skull" -> targetPlayer.getInventory().addItem(
+                                ObsidianSkull.getItem(plugin)
+                        );
 
-                        case "band_of_regeneration" -> {
-                            targetPlayer.getInventory().addItem(
-                                    BandOfRegeneration.getItem(plugin)
-                            );
-                        }
+                        case "band_of_regeneration" -> targetPlayer.getInventory().addItem(
+                                BandOfRegeneration.getItem(plugin)
+                        );
 
-                        case "red_balloon" -> {
-                            targetPlayer.getInventory().addItem(
-                                    RedBalloon.getItem(plugin)
-                            );
-                        }
+                        case "red_balloon" -> targetPlayer.getInventory().addItem(
+                                RedBalloon.getItem(plugin)
+                        );
 
-                        case "lucky_horseshoe" -> {
-                            targetPlayer.getInventory().addItem(
-                                    LuckyHorseshoe.getItem(plugin)
-                            );
-                        }
+                        case "lucky_horseshoe" -> targetPlayer.getInventory().addItem(
+                                LuckyHorseshoe.getItem(plugin)
+                        );
 
-                        case "magic_mirror" -> {
-                            targetPlayer.getInventory().addItem(
-                                    MagicMirror.getItem(plugin)
-                            );
-                        }
+                        case "magic_mirror" -> targetPlayer.getInventory().addItem(
+                                MagicMirror.getItem(plugin)
+                        );
 
-                        case "cobalt_shield" -> {
-                            targetPlayer.getInventory().addItem(
-                                    CobaltShield.getItem(plugin)
-                            );
-                        }
+                        case "cobalt_shield" -> targetPlayer.getInventory().addItem(
+                                CobaltShield.getItem(plugin)
+                        );
 
-                        case "golden_crown" -> {
-                            targetPlayer.getInventory().addItem(
-                                    GoldenCrown.getItem(plugin)
-                            );
-                        }
+                        case "golden_crown" -> targetPlayer.getInventory().addItem(
+                                GoldenCrown.getItem(plugin)
+                        );
 
-                        case "demonite_bar" -> {
-                            targetPlayer.getInventory().addItem(
-                                    DemoniteBar.getItem(plugin)
-                            );
-                        }
+                        case "demonite_bar" -> targetPlayer.getInventory().addItem(
+                                DemoniteBar.getItem(plugin)
+                        );
 
-                        case "lights_bane" -> {
-                            targetPlayer.getInventory().addItem(
-                                    LightsBane.getItem(plugin)
-                            );
-                        }
+                        case "lights_bane" -> targetPlayer.getInventory().addItem(
+                                LightsBane.getItem(plugin)
+                        );
 
                         case "shadow_armour" -> {
                             targetPlayer.getInventory().addItem(
@@ -635,113 +620,77 @@ if (finalArgument.equals("permanent")
                             );
                         }
 
-                        case "counter_scarf" -> {
-                            targetPlayer.getInventory().addItem(
-                                    CounterScarf.getItem(plugin)
-                            );
-                        }
+                        case "counter_scarf" -> targetPlayer.getInventory().addItem(
+                                CounterScarf.getItem(plugin)
+                        );
 
-                        case "molten_fury" -> {
-                            targetPlayer.getInventory().addItem(
-                                    MoltenFury.getItem(plugin)
-                            );
-                        }
+                        case "molten_fury" -> targetPlayer.getInventory().addItem(
+                                MoltenFury.getItem(plugin)
+                        );
 
-                        case "volcano" -> {
-                            targetPlayer.getInventory().addItem(
-                                    Volcano.getItem(plugin)
-                            );
-                        }
+                        case "volcano" -> targetPlayer.getInventory().addItem(
+                                Volcano.getItem(plugin)
+                        );
 
-                        case "hellforge" -> {
-                            targetPlayer.getInventory().addItem(
-                                    Hellforge.getItem(plugin)
-                            );
-                        }
+                        case "hellforge" -> targetPlayer.getInventory().addItem(
+                                Hellforge.getItem(plugin)
+                        );
 
-                        case "bezoar" -> {
-                            targetPlayer.getInventory().addItem(
-                                    Bezoar.getItem(plugin)
-                            );
-                        }
+                        case "bezoar" -> targetPlayer.getInventory().addItem(
+                                Bezoar.getItem(plugin)
+                        );
 
-                        case "blindfold" -> {
-                            targetPlayer.getInventory().addItem(
-                                    Blindfold.getItem(plugin)
-                            );
-                        }
+                        case "blindfold" -> targetPlayer.getInventory().addItem(
+                                Blindfold.getItem(plugin)
+                        );
 
-                        case "fast_clock" -> {
-                            targetPlayer.getInventory().addItem(
-                                    FastClock.getItem(plugin)
-                            );
-                        }
+                        case "fast_clock" -> targetPlayer.getInventory().addItem(
+                                FastClock.getItem(plugin)
+                        );
 
-                        case "vitamins" -> {
-                            targetPlayer.getInventory().addItem(
-                                    Vitamins.getItem(plugin)
-                            );
-                        }
+                        case "vitamins" -> targetPlayer.getInventory().addItem(
+                                Vitamins.getItem(plugin)
+                        );
 
-                        case "molten_elytra" -> {
-                            targetPlayer.getInventory().addItem(
-                                    MoltenElytra.getItem(plugin)
-                            );
-                        }
+                        case "molten_elytra" -> targetPlayer.getInventory().addItem(
+                                MoltenElytra.getItem(plugin)
+                        );
 
-                        case "shadow_elytra" -> {
-                            targetPlayer.getInventory().addItem(
-                                    ShadowElytra.getItem(plugin)
-                            );
-                        }
+                        case "shadow_elytra" -> targetPlayer.getInventory().addItem(
+                                ShadowElytra.getItem(plugin)
+                        );
 
-                        case "ranger_emblem" -> {
-                            targetPlayer.getInventory().addItem(
-                                    RangerEmblem.getItem(plugin)
-                            );
-                        }
+                        case "ranger_emblem" -> targetPlayer.getInventory().addItem(
+                                RangerEmblem.getItem(plugin)
+                        );
 
-                        case "warrior_emblem" -> {
-                            targetPlayer.getInventory().addItem(
-                                    WarriorEmblem.getItem(plugin)
-                            );
-                        }
+                        case "warrior_emblem" -> targetPlayer.getInventory().addItem(
+                                WarriorEmblem.getItem(plugin)
+                        );
 
-                        case "shackle" -> {
-                            targetPlayer.getInventory().addItem(
-                                    Shackle.getItem(plugin)
-                            );
-                        }
+                        case "shackle" -> targetPlayer.getInventory().addItem(
+                                Shackle.getItem(plugin)
+                        );
 
-                        case "might" -> {
-                            targetPlayer.getInventory().addItem(
-                                    SoulOfMight.getItem(plugin)
-                            );
-                        }
+                        case "might" -> targetPlayer.getInventory().addItem(
+                                SoulOfMight.getItem(plugin)
+                        );
 
-                        case "excalibur" -> {
-                            targetPlayer.getInventory().addItem(
-                                    Excalibur.getItem(plugin)
-                            );
-                        }
+                        case "excalibur" -> targetPlayer.getInventory().addItem(
+                                Excalibur.getItem(plugin)
+                        );
 
-                        case "snowball_cannon" -> {
-                            targetPlayer.getInventory().addItem(
-                                    SnowballCannon.getItem(plugin)
-                            );
-                        }
+                        case "snowball_cannon" -> targetPlayer.getInventory().addItem(
+                                SnowballCannon.getItem(plugin)
+                        );
 
-                        case "hallowed_repeater" -> {
-                            targetPlayer.getInventory().addItem(
-                                    HallowedRepeater.getItem(plugin)
-                            );
-                        }
+                        case "hallowed_repeater" -> targetPlayer.getInventory().addItem(
+                                HallowedRepeater.getItem(plugin)
+                        );
 
-                        case "pickaxe_axe" -> {
-                            targetPlayer.getInventory().addItem(
-                                    PickaxeAxe.getItem(plugin)
-                            );
-                        }
+                        case "pickaxe_axe" -> targetPlayer.getInventory().addItem(
+                                PickaxeAxe.getItem(plugin)
+                        );
 
                         case "hallowed_armour" -> {
                             targetPlayer.getInventory().addItem(
@@ -764,143 +713,97 @@ if (finalArgument.equals("permanent")
                             );
                         }
 
-                        case "hallowed_elytra" -> {
-                            targetPlayer.getInventory().addItem(
-                                    HallowedElytra.getItem(plugin)
-                            );
-                        }
+                        case "hallowed_elytra" -> targetPlayer.getInventory().addItem(
+                                HallowedElytra.getItem(plugin)
+                        );
 
-                        case "avenger_emblem" -> {
-                            targetPlayer.getInventory().addItem(
-                                    AvengerEmblem.getItem(plugin)
-                            );
-                        }
+                        case "avenger_emblem" -> targetPlayer.getInventory().addItem(
+                                AvengerEmblem.getItem(plugin)
+                        );
 
-                        case "blade_of_grass" -> {
-                            targetPlayer.getInventory().addItem(
-                                    BladeOfGrass.getItem(plugin)
-                            );
-                        }
+                        case "blade_of_grass" -> targetPlayer.getInventory().addItem(
+                                BladeOfGrass.getItem(plugin)
+                        );
 
-                        case "ice_blade" -> {
-                            targetPlayer.getInventory().addItem(
-                                    IceBlade.getItem(plugin)
-                            );
-                        }
+                        case "ice_blade" -> targetPlayer.getInventory().addItem(
+                                IceBlade.getItem(plugin)
+                        );
 
-                        case "blowpipe" -> {
-                            targetPlayer.getInventory().addItem(
-                                    Blowpipe.getItem(plugin)
-                            );
-                        }
+                        case "blowpipe" -> targetPlayer.getInventory().addItem(
+                                Blowpipe.getItem(plugin)
+                        );
 
-                        case "minishark" -> {
-                            targetPlayer.getInventory().addItem(
-                                    Minishark.getItem(plugin)
-                            );
-                        }
+                        case "minishark" -> targetPlayer.getInventory().addItem(
+                                Minishark.getItem(plugin)
+                        );
 
-                        case "handgun" -> {
-                            targetPlayer.getInventory().addItem(
-                                    Handgun.getItem(plugin)
-                            );
-                        }
+                        case "handgun" -> targetPlayer.getInventory().addItem(
+                                Handgun.getItem(plugin)
+                        );
 
-                        case "shotgun" -> {
-                            targetPlayer.getInventory().addItem(
-                                    Shotgun.getItem(plugin)
-                            );
-                        }
+                        case "shotgun" -> targetPlayer.getInventory().addItem(
+                                Shotgun.getItem(plugin)
+                        );
 
-                        case "needler" -> {
-                            targetPlayer.getInventory().addItem(
-                                    Needler.getItem(plugin)
-                            );
-                        }
+                        case "needler" -> targetPlayer.getInventory().addItem(
+                                Needler.getItem(plugin)
+                        );
 
-                        case "christmastreesword" -> {
-                            targetPlayer.getInventory().addItem(
-                                    ChristmasTreeSword.getItem(plugin)
-                            );
-                        }
+                        case "christmastreesword" -> targetPlayer.getInventory().addItem(
+                                ChristmasTreeSword.getItem(plugin)
+                        );
 
-                        case "mega_shark" -> {
-                            targetPlayer.getInventory().addItem(
-                                    Megashark.getItem(plugin)
-                            );
-                        }
+                        case "mega_shark" -> targetPlayer.getInventory().addItem(
+                                Megashark.getItem(plugin)
+                        );
 
-                        case "sniper_rifle" -> {
-                            targetPlayer.getInventory().addItem(
-                                    SniperRifle.getItem(plugin)
-                            );
-                        }
+                        case "sniper_rifle" -> targetPlayer.getInventory().addItem(
+                                SniperRifle.getItem(plugin)
+                        );
 
-                        case "phoenix_blaster" -> {
-                            targetPlayer.getInventory().addItem(
-                                    PhoenixBlaster.getItem(plugin)
-                            );
-                        }
+                        case "phoenix_blaster" -> targetPlayer.getInventory().addItem(
+                                PhoenixBlaster.getItem(plugin)
+                        );
 
-                        case "torrential_tear" -> {
-                            targetPlayer.getInventory().addItem(
-                                    TorrentialTear.getItem(plugin)
-                            );
-                        }
+                        case "torrential_tear" -> targetPlayer.getInventory().addItem(
+                                TorrentialTear.getItem(plugin)
+                        );
 
-                        case "amethyst_staff" -> {
-                            targetPlayer.getInventory().addItem(
-                                    AmethystStaff.getItem(plugin)
-                            );
-                        }
+                        case "amethyst_staff" -> targetPlayer.getInventory().addItem(
+                                AmethystStaff.getItem(plugin)
+                        );
 
-                        case "ruby_staff" -> {
-                            targetPlayer.getInventory().addItem(
-                                    RubyStaff.getItem(plugin)
-                            );
-                        }
+                        case "ruby_staff" -> targetPlayer.getInventory().addItem(
+                                RubyStaff.getItem(plugin)
+                        );
 
-                        case "mana_crystal" -> {
-                            targetPlayer.getInventory().addItem(
-                                    ManaCrystal.getItem(plugin)
-                            );
-                        }
+                        case "mana_crystal" -> targetPlayer.getInventory().addItem(
+                                ManaCrystal.getItem(plugin)
+                        );
 
-                        case "meteor_staff" -> {
-                            targetPlayer.getInventory().addItem(
-                                    MeteorStaff.getItem(plugin)
-                            );
-                        }
+                        case "meteor_staff" -> targetPlayer.getInventory().addItem(
+                                MeteorStaff.getItem(plugin)
+                        );
 
-                        case "bubble_gun" -> {
-                            targetPlayer.getInventory().addItem(
-                                    BubbleGun.getItem(plugin)
-                            );
-                        }
+                        case "bubble_gun" -> targetPlayer.getInventory().addItem(
+                                BubbleGun.getItem(plugin)
+                        );
 
-                        case "water_bolt" -> {
-                            targetPlayer.getInventory().addItem(
-                                    WaterBolt.getItem(plugin)
-                            );
-                        }
+                        case "water_bolt" -> targetPlayer.getInventory().addItem(
+                                WaterBolt.getItem(plugin)
+                        );
 
-                        case "icicle_staff" -> {
-                            targetPlayer.getInventory().addItem(
-                                    IcicleStaff.getItem(plugin)
-                            );
-                        }
+                        case "icicle_staff" -> targetPlayer.getInventory().addItem(
+                                IcicleStaff.getItem(plugin)
+                        );
 
-                        case "neptunes_shell" -> {
-                            targetPlayer.getInventory().addItem(
-                                    NeptunesShell.getItem(plugin)
-                            );
-                        }
+                        case "neptunes_shell" -> targetPlayer.getInventory().addItem(
+                                NeptunesShell.getItem(plugin)
+                        );
 
-                        case "ancient_fossil" -> {
-                            targetPlayer.getInventory().addItem(
-                                    AncientFossil.getItem(plugin)
-                            );
-                        }
+                        case "ancient_fossil" -> targetPlayer.getInventory().addItem(
+                                AncientFossil.getItem(plugin)
+                        );
 
                         case "cactus_armor" -> {
                             targetPlayer.getInventory().addItem(
@@ -917,232 +820,158 @@ if (finalArgument.equals("permanent")
                             );
                         }
 
-                        case "terra_blade" -> {
-                            targetPlayer.getInventory().addItem(
-                                    TerraBlade.getItem(plugin)
-                            );
-                        }
+                        case "terra_blade" -> targetPlayer.getInventory().addItem(
+                                TerraBlade.getItem(plugin)
+                        );
 
-                        case "star_cannon" -> {
-                            targetPlayer.getInventory().addItem(
-                                    StarCannon.getItem(plugin)
-                            );
-                        }
+                        case "star_cannon" -> targetPlayer.getInventory().addItem(
+                                StarCannon.getItem(plugin)
+                        );
 
                         case "fallen_star" -> {
                             ItemStack itemStack =
                                     FallenStar.getItem(plugin);
-
                             itemStack.setAmount(20);
-
-                            targetPlayer.getInventory().addItem(
-                                    itemStack
-                            );
+                            targetPlayer.getInventory().addItem(itemStack);
                         }
 
-                        case "super_star_shooter" -> {
-                            targetPlayer.getInventory().addItem(
-                                    SuperStarShooter.getItem(plugin)
-                            );
-                        }
+                        case "super_star_shooter" -> targetPlayer.getInventory().addItem(
+                                SuperStarShooter.getItem(plugin)
+                        );
 
-                        case "sorcerer_emblem" -> {
-                            targetPlayer.getInventory().addItem(
-                                    SorcererEmblem.getItem(plugin)
-                            );
-                        }
+                        case "sorcerer_emblem" -> targetPlayer.getInventory().addItem(
+                                SorcererEmblem.getItem(plugin)
+                        );
 
-                        case "wooden_crate" -> {
-                            targetPlayer.getInventory().addItem(
-                                    WoodenCrate.getItem(plugin)
-                            );
-                        }
+                        case "wooden_crate" -> targetPlayer.getInventory().addItem(
+                                WoodenCrate.getItem(plugin)
+                        );
 
-                        case "iron_crate" -> {
-                            targetPlayer.getInventory().addItem(
-                                    IronCrate.getItem(plugin)
-                            );
-                        }
+                        case "iron_crate" -> targetPlayer.getInventory().addItem(
+                                IronCrate.getItem(plugin)
+                        );
 
-                        case "golden_crate" -> {
-                            targetPlayer.getInventory().addItem(
-                                    GoldenCrate.getItem(plugin)
-                            );
-                        }
+                        case "golden_crate" -> targetPlayer.getInventory().addItem(
+                                GoldenCrate.getItem(plugin)
+                        );
 
-                        case "frozen_crate" -> {
-                            targetPlayer.getInventory().addItem(
-                                    FrozenCrate.getItem(plugin)
-                            );
-                        }
+                        case "frozen_crate" -> targetPlayer.getInventory().addItem(
+                                FrozenCrate.getItem(plugin)
+                        );
 
-                        case "sky_crate" -> {
-                            targetPlayer.getInventory().addItem(
-                                    SkyCrate.getItem(plugin)
-                            );
-                        }
+                        case "sky_crate" -> targetPlayer.getInventory().addItem(
+                                SkyCrate.getItem(plugin)
+                        );
 
-                        case "jungle_crate" -> {
-                            targetPlayer.getInventory().addItem(
-                                    JungleCrate.getItem(plugin)
-                            );
-                        }
+                        case "jungle_crate" -> targetPlayer.getInventory().addItem(
+                                JungleCrate.getItem(plugin)
+                        );
 
-                        case "oasis_crate" -> {
-                            targetPlayer.getInventory().addItem(
-                                    OasisCrate.getItem(plugin)
-                            );
-                        }
+                        case "oasis_crate" -> targetPlayer.getInventory().addItem(
+                                OasisCrate.getItem(plugin)
+                        );
 
-                        case "ocean_crate" -> {
-                            targetPlayer.getInventory().addItem(
-                                    OceanCrate.getItem(plugin)
-                            );
-                        }
+                        case "ocean_crate" -> targetPlayer.getInventory().addItem(
+                                OceanCrate.getItem(plugin)
+                        );
 
-                        case "falcon_blade" -> {
-                            targetPlayer.getInventory().addItem(
-                                    FalconBlade.getItem(plugin)
-                            );
-                        }
+                        case "falcon_blade" -> targetPlayer.getInventory().addItem(
+                                FalconBlade.getItem(plugin)
+                        );
 
-                        case "enchanted_sword" -> {
-                            targetPlayer.getInventory().addItem(
-                                    EnchantedSword.getItem(plugin)
-                            );
-                        }
+                        case "enchanted_sword" -> targetPlayer.getInventory().addItem(
+                                EnchantedSword.getItem(plugin)
+                        );
 
-                        case "tsunami_in_a_bottle" -> {
-                            targetPlayer.getInventory().addItem(
-                                    TsunamiInABottle.getItem(plugin)
-                            );
-                        }
+                        case "tsunami_in_a_bottle" -> targetPlayer.getInventory().addItem(
+                                TsunamiInABottle.getItem(plugin)
+                        );
 
-                        case "anklet_of_the_wind" -> {
-                            targetPlayer.getInventory().addItem(
-                                    AnkletOfTheWind.getItem(plugin)
-                            );
-                        }
+                        case "anklet_of_the_wind" -> targetPlayer.getInventory().addItem(
+                                AnkletOfTheWind.getItem(plugin)
+                        );
 
-                        case "blizzard_in_a_bottle" -> {
-                            targetPlayer.getInventory().addItem(
-                                    BlizzardInABottle.getItem(plugin)
-                            );
-                        }
+                        case "blizzard_in_a_bottle" -> targetPlayer.getInventory().addItem(
+                                BlizzardInABottle.getItem(plugin)
+                        );
 
-                        case "sandstorm_in_a_bottle" -> {
-                            targetPlayer.getInventory().addItem(
-                                    SandstormInABottle.getItem(plugin)
-                            );
-                        }
+                        case "sandstorm_in_a_bottle" -> targetPlayer.getInventory().addItem(
+                                SandstormInABottle.getItem(plugin)
+                        );
 
-                        case "thunder_zapper" -> {
-                            targetPlayer.getInventory().addItem(
-                                    ThunderZapper.getItem(plugin)
-                            );
-                        }
+                        case "thunder_zapper" -> targetPlayer.getInventory().addItem(
+                                ThunderZapper.getItem(plugin)
+                        );
 
-                        case "magical_harp" -> {
-                            targetPlayer.getInventory().addItem(
-                                    MagicalHarp.getItem(plugin)
-                            );
-                        }
+                        case "magical_harp" -> targetPlayer.getInventory().addItem(
+                                MagicalHarp.getItem(plugin)
+                        );
 
-                        case "crystal_storm" -> {
-                            targetPlayer.getInventory().addItem(
-                                    CrystalStorm.getItem(plugin)
-                            );
-                        }
+                        case "crystal_storm" -> targetPlayer.getInventory().addItem(
+                                CrystalStorm.getItem(plugin)
+                        );
 
-                        case "onyx_blaster" -> {
-                            targetPlayer.getInventory().addItem(
-                                    OnyxBlaster.getItem(plugin)
-                            );
-                        }
+                        case "onyx_blaster" -> targetPlayer.getInventory().addItem(
+                                OnyxBlaster.getItem(plugin)
+                        );
 
-                        case "hoarfrost_bow" -> {
-                            targetPlayer.getInventory().addItem(
-                                    HoarfrostBow.getItem(plugin)
-                            );
-                        }
+                        case "hoarfrost_bow" -> targetPlayer.getInventory().addItem(
+                                HoarfrostBow.getItem(plugin)
+                        );
 
-                        case "mechanical_shrieker" -> {
-                            targetPlayer.getInventory().addItem(
-                                    MechanicalShrieker.getItem(plugin)
-                            );
-                        }
+                        case "mechanical_shrieker" -> targetPlayer.getInventory().addItem(
+                                MechanicalShrieker.getItem(plugin)
+                        );
 
-                        case "mechanical_egg" -> {
-                            targetPlayer.getInventory().addItem(
-                                    MechanicalEgg.getItem(plugin)
-                            );
-                        }
+                        case "mechanical_egg" -> targetPlayer.getInventory().addItem(
+                                MechanicalEgg.getItem(plugin)
+                        );
 
-                        case "mechanical_skull" -> {
-                            targetPlayer.getInventory().addItem(
-                                    MechanicalSkull.getItem(plugin)
-                            );
-                        }
+                        case "mechanical_skull" -> targetPlayer.getInventory().addItem(
+                                MechanicalSkull.getItem(plugin)
+                        );
 
-                        case "pulse_bow" -> {
-                            targetPlayer.getInventory().addItem(
-                                    PulseBow.getItem(plugin)
-                            );
-                        }
+                        case "pulse_bow" -> targetPlayer.getInventory().addItem(
+                                PulseBow.getItem(plugin)
+                        );
 
-                        case "bone_pickaxe" -> {
-                            targetPlayer.getInventory().addItem(
-                                    BonePickaxe.getItem(plugin)
-                            );
-                        }
+                        case "bone_pickaxe" -> targetPlayer.getInventory().addItem(
+                                BonePickaxe.getItem(plugin)
+                        );
 
-                        case "night_vision_helmet" -> {
-                            targetPlayer.getInventory().addItem(
-                                    NightVisionHelmet.getItem(plugin)
-                            );
-                        }
+                        case "night_vision_helmet" -> targetPlayer.getInventory().addItem(
+                                NightVisionHelmet.getItem(plugin)
+                        );
 
-                        case "sand_gun" -> {
-                            targetPlayer.getInventory().addItem(
-                                    SandGun.getItem(plugin)
-                            );
-                        }
+                        case "sand_gun" -> targetPlayer.getInventory().addItem(
+                                SandGun.getItem(plugin)
+                        );
 
                         case "souls" -> {
 
                             ItemStack light =
                                     SoulOfLight.getItem(plugin);
-
                             light.setAmount(4);
-
                             targetPlayer.getInventory().addItem(light);
 
                             ItemStack night =
                                     SoulOfNight.getItem(plugin);
-
                             night.setAmount(4);
-
                             targetPlayer.getInventory().addItem(night);
 
                             ItemStack might =
                                     SoulOfMight.getItem(plugin);
-
                             might.setAmount(4);
-
                             targetPlayer.getInventory().addItem(might);
 
                             ItemStack fright =
                                     SoulOfFright.getItem(plugin);
-
                             fright.setAmount(4);
-
                             targetPlayer.getInventory().addItem(fright);
 
                             ItemStack sight =
                                     SoulOfSight.getItem(plugin);
-
                             sight.setAmount(4);
-
                             targetPlayer.getInventory().addItem(sight);
                         }
 
@@ -1207,17 +1036,13 @@ if (finalArgument.equals("permanent")
                             );
                         }
 
-                        case "forbidden_fragment" -> {
-                            targetPlayer.getInventory().addItem(
-                                    ForbiddenFragment.getItem(plugin)
-                            );
-                        }
+                        case "forbidden_fragment" -> targetPlayer.getInventory().addItem(
+                                ForbiddenFragment.getItem(plugin)
+                        );
 
-                        case "frost_core" -> {
-                            targetPlayer.getInventory().addItem(
-                                    FrostCore.getItem(plugin)
-                            );
-                        }
+                        case "frost_core" -> targetPlayer.getInventory().addItem(
+                                FrostCore.getItem(plugin)
+                        );
 
                         case "frost_armor" -> {
 
@@ -1238,347 +1063,233 @@ if (finalArgument.equals("permanent")
                             );
                         }
 
-                        case "magic_quiver" -> {
-                            targetPlayer.getInventory().addItem(
-                                    MagicQuiver.getItem(plugin)
-                            );
-                        }
+                        case "magic_quiver" -> targetPlayer.getInventory().addItem(
+                                MagicQuiver.getItem(plugin)
+                        );
 
-                        case "wizard_hat" -> {
-                            targetPlayer.getInventory().addItem(
-                                    WizardHat.getItem(plugin)
-                            );
-                        }
+                        case "wizard_hat" -> targetPlayer.getInventory().addItem(
+                                WizardHat.getItem(plugin)
+                        );
 
-                        case "vampire_knives" -> {
-                            targetPlayer.getInventory().addItem(
-                                    VampireKnives.getItem(plugin)
-                            );
-                        }
+                        case "vampire_knives" -> targetPlayer.getInventory().addItem(
+                                VampireKnives.getItem(plugin)
+                        );
 
-                        case "forbidden_elytra" -> {
-                            targetPlayer.getInventory().addItem(
-                                    ForbiddenElytra.getItem(plugin)
-                            );
-                        }
+                        case "forbidden_elytra" -> targetPlayer.getInventory().addItem(
+                                ForbiddenElytra.getItem(plugin)
+                        );
 
-                        case "frost_elytra" -> {
-                            targetPlayer.getInventory().addItem(
-                                    FrostElytra.getItem(plugin)
-                            );
-                        }
+                        case "frost_elytra" -> targetPlayer.getInventory().addItem(
+                                FrostElytra.getItem(plugin)
+                        );
 
-                        case "tainted_blade" -> {
-                            targetPlayer.getInventory().addItem(
-                                    TaintedBlade.getItem(plugin)
-                            );
-                        }
+                        case "tainted_blade" -> targetPlayer.getInventory().addItem(
+                                TaintedBlade.getItem(plugin)
+                        );
 
-                        case "caustic_edge" -> {
-                            targetPlayer.getInventory().addItem(
-                                    CausticEdge.getItem(plugin)
-                            );
-                        }
+                        case "caustic_edge" -> targetPlayer.getInventory().addItem(
+                                CausticEdge.getItem(plugin)
+                        );
 
-                        case "ice_sickle" -> {
-                            targetPlayer.getInventory().addItem(
-                                    IceSickle.getItem(plugin)
-                            );
-                        }
+                        case "ice_sickle" -> targetPlayer.getInventory().addItem(
+                                IceSickle.getItem(plugin)
+                        );
 
-                        case "breaker_blade" -> {
-                            targetPlayer.getInventory().addItem(
-                                    BreakerBlade.getItem(plugin)
-                            );
-                        }
+                        case "breaker_blade" -> targetPlayer.getInventory().addItem(
+                                BreakerBlade.getItem(plugin)
+                        );
 
-                        case "slap_hand" -> {
-                            targetPlayer.getInventory().addItem(
-                                    SlapHand.getItem(plugin)
-                            );
-                        }
+                        case "slap_hand" -> targetPlayer.getInventory().addItem(
+                                SlapHand.getItem(plugin)
+                        );
 
-                        case "laser_rifle" -> {
-                            targetPlayer.getInventory().addItem(
-                                    LaserRifle.getItem(plugin)
-                            );
-                        }
+                        case "laser_rifle" -> targetPlayer.getInventory().addItem(
+                                LaserRifle.getItem(plugin)
+                        );
 
-                        case "clockwork_assault_rifle" -> {
-                            targetPlayer.getInventory().addItem(
-                                    ClockworkAssaultRifle.getItem(plugin)
-                            );
-                        }
+                        case "clockwork_assault_rifle" -> targetPlayer.getInventory().addItem(
+                                ClockworkAssaultRifle.getItem(plugin)
+                        );
 
-                        case "lesser_mana_potion" -> {
-                            targetPlayer.getInventory().addItem(
-                                    LesserManaPotion.getItem(plugin)
-                            );
-                        }
+                        case "lesser_mana_potion" -> targetPlayer.getInventory().addItem(
+                                LesserManaPotion.getItem(plugin)
+                        );
 
-                        case "mana_potion" -> {
-                            targetPlayer.getInventory().addItem(
-                                    ManaPotion.getItem(plugin)
-                            );
-                        }
+                        case "mana_potion" -> targetPlayer.getInventory().addItem(
+                                ManaPotion.getItem(plugin)
+                        );
 
-                        case "greater_mana_potion" -> {
-                            targetPlayer.getInventory().addItem(
-                                    GreaterManaPotion.getItem(plugin)
-                            );
-                        }
+                        case "greater_mana_potion" -> targetPlayer.getInventory().addItem(
+                                GreaterManaPotion.getItem(plugin)
+                        );
 
-                        case "super_mana_potion" -> {
-                            targetPlayer.getInventory().addItem(
-                                    SuperManaPotion.getItem(plugin)
-                            );
-                        }
+                        case "super_mana_potion" -> targetPlayer.getInventory().addItem(
+                                SuperManaPotion.getItem(plugin)
+                        );
 
-                        case "feral_claws" -> {
-                            targetPlayer.getInventory().addItem(
-                                    FeralClaws.getItem(plugin)
-                            );
-                        }
+                        case "feral_claws" -> targetPlayer.getInventory().addItem(
+                                FeralClaws.getItem(plugin)
+                        );
 
-                        case "panic_necklace" -> {
-                            targetPlayer.getInventory().addItem(
-                                    PanicNecklace.getItem(plugin)
-                            );
-                        }
+                        case "panic_necklace" -> targetPlayer.getInventory().addItem(
+                                PanicNecklace.getItem(plugin)
+                        );
 
-                        case "band_of_starpower" -> {
-                            targetPlayer.getInventory().addItem(
-                                    BandOfStarpower.getItem(plugin)
-                            );
-                        }
+                        case "band_of_starpower" -> targetPlayer.getInventory().addItem(
+                                BandOfStarpower.getItem(plugin)
+                        );
 
-                        case "magic_cuffs" -> {
-                            targetPlayer.getInventory().addItem(
-                                    MagicCuffs.getItem(plugin)
-                            );
-                        }
+                        case "magic_cuffs" -> targetPlayer.getInventory().addItem(
+                                MagicCuffs.getItem(plugin)
+                        );
 
-                        case "honey_comb" -> {
-                            targetPlayer.getInventory().addItem(
-                                    HoneyComb.getItem(plugin)
-                            );
-                        }
+                        case "honey_comb" -> targetPlayer.getInventory().addItem(
+                                HoneyComb.getItem(plugin)
+                        );
 
-                        case "honey_balloon" -> {
-                            targetPlayer.getInventory().addItem(
-                                    HoneyBalloon.getItem(plugin)
-                            );
-                        }
+                        case "honey_balloon" -> targetPlayer.getInventory().addItem(
+                                HoneyBalloon.getItem(plugin)
+                        );
 
-                        case "sweetheart_necklace" -> {
-                            targetPlayer.getInventory().addItem(
-                                    SweetheartNecklace.getItem(plugin)
-                            );
-                        }
+                        case "sweetheart_necklace" -> targetPlayer.getInventory().addItem(
+                                SweetheartNecklace.getItem(plugin)
+                        );
 
-                        case "obsidian_shield" -> {
-                            targetPlayer.getInventory().addItem(
-                                    ObsidianShield.getItem(plugin)
-                            );
-                        }
+                        case "obsidian_shield" -> targetPlayer.getInventory().addItem(
+                                ObsidianShield.getItem(plugin)
+                        );
 
-                        case "ankh_charm" -> {
-                            targetPlayer.getInventory().addItem(
-                                    AnkhCharm.getItem(plugin)
-                            );
-                        }
+                        case "ankh_charm" -> targetPlayer.getInventory().addItem(
+                                AnkhCharm.getItem(plugin)
+                        );
 
-                        case "ankh_shield" -> {
-                            targetPlayer.getInventory().addItem(
-                                    AnkhShield.getItem(plugin)
-                            );
-                        }
+                        case "ankh_shield" -> targetPlayer.getInventory().addItem(
+                                AnkhShield.getItem(plugin)
+                        );
 
-                        case "titan_glove" -> {
-                            targetPlayer.getInventory().addItem(
-                                    TitanGlove.getItem(plugin)
-                            );
-                        }
+                        case "titan_glove" -> targetPlayer.getInventory().addItem(
+                                TitanGlove.getItem(plugin)
+                        );
 
-                        case "power_glove" -> {
-                            targetPlayer.getInventory().addItem(
-                                    PowerGlove.getItem(plugin)
-                            );
-                        }
+                        case "power_glove" -> targetPlayer.getInventory().addItem(
+                                PowerGlove.getItem(plugin)
+                        );
 
-                        case "mechanical_glove" -> {
-                            targetPlayer.getInventory().addItem(
-                                    MechanicalGlove.getItem(plugin)
-                            );
-                        }
+                        case "mechanical_glove" -> targetPlayer.getInventory().addItem(
+                                MechanicalGlove.getItem(plugin)
+                        );
 
-                        case "cross_necklace" -> {
-                            targetPlayer.getInventory().addItem(
-                                    CrossNecklace.getItem(plugin)
-                            );
-                        }
+                        case "cross_necklace" -> targetPlayer.getInventory().addItem(
+                                CrossNecklace.getItem(plugin)
+                        );
 
-                        case "magic_dagger" -> {
-                            targetPlayer.getInventory().addItem(
-                                    MagicDagger.getItem(plugin)
-                            );
-                        }
+                        case "magic_dagger" -> targetPlayer.getInventory().addItem(
+                                MagicDagger.getItem(plugin)
+                        );
 
-                        case "star_cloak" -> {
-                            targetPlayer.getInventory().addItem(
-                                    StarCloak.getItem(plugin)
-                            );
-                        }
+                        case "star_cloak" -> targetPlayer.getInventory().addItem(
+                                StarCloak.getItem(plugin)
+                        );
 
-                        case "star_veil" -> {
-                            targetPlayer.getInventory().addItem(
-                                    StarVeil.getItem(plugin)
-                            );
-                        }
+                        case "star_veil" -> targetPlayer.getInventory().addItem(
+                                StarVeil.getItem(plugin)
+                        );
 
-                        case "life_crystal" -> {
-                            targetPlayer.getInventory().addItem(
-                                    LifeCrystal.getItem(plugin)
-                            );
-                        }
+                        case "life_crystal" -> targetPlayer.getInventory().addItem(
+                                LifeCrystal.getItem(plugin)
+                        );
 
-                        case "blood_rain_bow" -> {
-                            targetPlayer.getInventory().addItem(
-                                    BloodRainBow.getItem(plugin)
-                            );
-                        }
+                        case "blood_rain_bow" -> targetPlayer.getInventory().addItem(
+                                BloodRainBow.getItem(plugin)
+                        );
 
-                        case "bloody_tear" -> {
-                            targetPlayer.getInventory().addItem(
-                                    BloodyTear.getItem(plugin)
-                            );
-                        }
+                        case "bloody_tear" -> targetPlayer.getInventory().addItem(
+                                BloodyTear.getItem(plugin)
+                        );
 
-                        case "shark_tooth_necklace" -> {
-                            targetPlayer.getInventory().addItem(
-                                    SharkToothNecklace.getItem(plugin)
-                            );
-                        }
+                        case "shark_tooth_necklace" -> targetPlayer.getInventory().addItem(
+                                SharkToothNecklace.getItem(plugin)
+                        );
 
-                        case "stinger_necklace" -> {
-                            targetPlayer.getInventory().addItem(
-                                    StingerNecklace.getItem(plugin)
-                            );
-                        }
+                        case "stinger_necklace" -> targetPlayer.getInventory().addItem(
+                                StingerNecklace.getItem(plugin)
+                        );
 
-                        case "fisher_of_souls" -> {
-                            targetPlayer.getInventory().addItem(
-                                    FisherOfSouls.getItem(plugin)
-                            );
-                        }
+                        case "fisher_of_souls" -> targetPlayer.getInventory().addItem(
+                                FisherOfSouls.getItem(plugin)
+                        );
 
-                        case "golden_fishing_rod" -> {
-                            targetPlayer.getInventory().addItem(
-                                    GoldenFishingRod.getItem(plugin)
-                            );
-                        }
+                        case "golden_fishing_rod" -> targetPlayer.getInventory().addItem(
+                                GoldenFishingRod.getItem(plugin)
+                        );
 
-                        case "mechanics_rod" -> {
-                            targetPlayer.getInventory().addItem(
-                                    MechanicsRod.getItem(plugin)
-                            );
-                        }
+                        case "mechanics_rod" -> targetPlayer.getInventory().addItem(
+                                MechanicsRod.getItem(plugin)
+                        );
 
-                        case "natures_gift" -> {
-                            targetPlayer.getInventory().addItem(
-                                    NaturesGift.getItem(plugin)
-                            );
-                        }
+                        case "natures_gift" -> targetPlayer.getInventory().addItem(
+                                NaturesGift.getItem(plugin)
+                        );
 
-                        case "mana_flower" -> {
-                            targetPlayer.getInventory().addItem(
-                                    ManaFlower.getItem(plugin)
-                            );
-                        }
+                        case "mana_flower" -> targetPlayer.getInventory().addItem(
+                                ManaFlower.getItem(plugin)
+                        );
 
-                        case "mana_cloak" -> {
-                            targetPlayer.getInventory().addItem(
-                                    ManaCloak.getItem(plugin)
-                            );
-                        }
+                        case "mana_cloak" -> targetPlayer.getInventory().addItem(
+                                ManaCloak.getItem(plugin)
+                        );
 
-                        case "chum_caster" -> {
-                            targetPlayer.getInventory().addItem(
-                                    ChumCaster.getItem(plugin)
-                            );
-                        }
+                        case "chum_caster" -> targetPlayer.getInventory().addItem(
+                                ChumCaster.getItem(plugin)
+                        );
 
-                        case "scarab_fishing_rod" -> {
-                            targetPlayer.getInventory().addItem(
-                                    ScarabFishingRod.getItem(plugin)
-                            );
-                        }
+                        case "scarab_fishing_rod" -> targetPlayer.getInventory().addItem(
+                                ScarabFishingRod.getItem(plugin)
+                        );
 
-                        case "fiberglass_fishing_pole" -> {
-                            targetPlayer.getInventory().addItem(
-                                    FiberglassFishingPole.getItem(plugin)
-                            );
-                        }
+                        case "fiberglass_fishing_pole" -> targetPlayer.getInventory().addItem(
+                                FiberglassFishingPole.getItem(plugin)
+                        );
 
-                        case "sitting_ducks_fishing_pole" -> {
-                            targetPlayer.getInventory().addItem(
-                                    SittingDucksFishingPole.getItem(plugin)
-                            );
-                        }
+                        case "sitting_ducks_fishing_pole" -> targetPlayer.getInventory().addItem(
+                                SittingDucksFishingPole.getItem(plugin)
+                        );
 
-                        case "grenade" -> {
-                            targetPlayer.getInventory().addItem(
-                                    Grenade.getItem(plugin)
-                            );
-                        }
+                        case "grenade" -> targetPlayer.getInventory().addItem(
+                                Grenade.getItem(plugin)
+                        );
 
-                        case "sticky_grenade" -> {
-                            targetPlayer.getInventory().addItem(
-                                    StickyGrenade.getItem(plugin)
-                            );
-                        }
+                        case "sticky_grenade" -> targetPlayer.getInventory().addItem(
+                                StickyGrenade.getItem(plugin)
+                        );
 
-                        case "bouncy_grenade" -> {
-                            targetPlayer.getInventory().addItem(
-                                    BouncyGrenade.getItem(plugin)
-                            );
-                        }
+                        case "bouncy_grenade" -> targetPlayer.getInventory().addItem(
+                                BouncyGrenade.getItem(plugin)
+                        );
 
-                        case "bomb" -> {
-                            targetPlayer.getInventory().addItem(
-                                    Bomb.getItem(plugin)
-                            );
-                        }
+                        case "bomb" -> targetPlayer.getInventory().addItem(
+                                Bomb.getItem(plugin)
+                        );
 
-                        case "sticky_bomb" -> {
-                            targetPlayer.getInventory().addItem(
-                                    StickyBomb.getItem(plugin)
-                            );
-                        }
+                        case "sticky_bomb" -> targetPlayer.getInventory().addItem(
+                                StickyBomb.getItem(plugin)
+                        );
 
-                        case "bouncy_bomb" -> {
-                            targetPlayer.getInventory().addItem(
-                                    BouncyBomb.getItem(plugin)
-                            );
-                        }
+                        case "bouncy_bomb" -> targetPlayer.getInventory().addItem(
+                                BouncyBomb.getItem(plugin)
+                        );
 
-                        case "dynamite" -> {
-                            targetPlayer.getInventory().addItem(
-                                    Dynamite.getItem(plugin)
-                            );
-                        }
+                        case "dynamite" -> targetPlayer.getInventory().addItem(
+                                Dynamite.getItem(plugin)
+                        );
 
-                        case "bouncy_dynamite" -> {
-                            targetPlayer.getInventory().addItem(
-                                    BouncyDynamite.getItem(plugin)
-                            );
-                        }
+                        case "bouncy_dynamite" -> targetPlayer.getInventory().addItem(
+                                BouncyDynamite.getItem(plugin)
+                        );
 
-                        case "sticky_dynamite" -> {
-                            targetPlayer.getInventory().addItem(
-                                    StickyDynamite.getItem(plugin)
-                            );
-                        }
+                        case "sticky_dynamite" -> targetPlayer.getInventory().addItem(
+                                StickyDynamite.getItem(plugin)
+                        );
 
                         case "spiky_ball" -> {
 
@@ -1590,137 +1301,93 @@ if (finalArgument.equals("permanent")
                             targetPlayer.getInventory().addItem(item);
                         }
 
-                        case "cloud_in_a_balloon" -> {
-                            targetPlayer.getInventory().addItem(
-                                    CloudInABalloon.getItem(plugin)
-                            );
-                        }
+                        case "cloud_in_a_balloon" -> targetPlayer.getInventory().addItem(
+                                CloudInABalloon.getItem(plugin)
+                        );
 
-                        case "sandstorm_in_a_balloon" -> {
-                            targetPlayer.getInventory().addItem(
-                                    SandstormInABalloon.getItem(plugin)
-                            );
-                        }
+                        case "sandstorm_in_a_balloon" -> targetPlayer.getInventory().addItem(
+                                SandstormInABalloon.getItem(plugin)
+                        );
 
-                        case "blizzard_in_a_balloon" -> {
-                            targetPlayer.getInventory().addItem(
-                                    BlizzardInABalloon.getItem(plugin)
-                            );
-                        }
+                        case "blizzard_in_a_balloon" -> targetPlayer.getInventory().addItem(
+                                BlizzardInABalloon.getItem(plugin)
+                        );
 
-                        case "amber_horseshoe_balloon" -> {
-                            targetPlayer.getInventory().addItem(
-                                    AmberHorseshoeBalloon.getItem(plugin)
-                            );
-                        }
+                        case "amber_horseshoe_balloon" -> targetPlayer.getInventory().addItem(
+                                AmberHorseshoeBalloon.getItem(plugin)
+                        );
 
-                        case "blue_horseshoe_balloon" -> {
-                            targetPlayer.getInventory().addItem(
-                                    BlueHorseshoeBalloon.getItem(plugin)
-                            );
-                        }
+                        case "blue_horseshoe_balloon" -> targetPlayer.getInventory().addItem(
+                                BlueHorseshoeBalloon.getItem(plugin)
+                        );
 
-                        case "white_horseshoe_balloon" -> {
-                            targetPlayer.getInventory().addItem(
-                                    WhiteHorseshoeBalloon.getItem(plugin)
-                            );
-                        }
+                        case "white_horseshoe_balloon" -> targetPlayer.getInventory().addItem(
+                                WhiteHorseshoeBalloon.getItem(plugin)
+                        );
 
-                        case "yellow_horseshoe_balloon" -> {
-                            targetPlayer.getInventory().addItem(
-                                    YellowHorseshoeBalloon.getItem(plugin)
-                            );
-                        }
+                        case "yellow_horseshoe_balloon" -> targetPlayer.getInventory().addItem(
+                                YellowHorseshoeBalloon.getItem(plugin)
+                        );
 
-                        case "bundle_of_balloons" -> {
-                            targetPlayer.getInventory().addItem(
-                                    BundleOfBalloons.getItem(plugin)
-                            );
-                        }
+                        case "bundle_of_balloons" -> targetPlayer.getInventory().addItem(
+                                BundleOfBalloons.getItem(plugin)
+                        );
 
-                        case "bundle_of_horseshoe_balloons" -> {
-                            targetPlayer.getInventory().addItem(
-                                    BundleOfHorseshoeBalloons.getItem(plugin)
-                            );
-                        }
+                        case "bundle_of_horseshoe_balloons" -> targetPlayer.getInventory().addItem(
+                                BundleOfHorseshoeBalloons.getItem(plugin)
+                        );
 
-                        case "grappling_hook" -> {
-                            targetPlayer.getInventory().addItem(
-                                    GrapplingHook.getItem(plugin)
-                            );
-                        }
+                        case "grappling_hook" -> targetPlayer.getInventory().addItem(
+                                GrapplingHook.getItem(plugin)
+                        );
 
-                        case "amethyst_hook" -> {
-                            targetPlayer.getInventory().addItem(
-                                    AmethystHook.getItem(plugin)
-                            );
-                        }
+                        case "amethyst_hook" -> targetPlayer.getInventory().addItem(
+                                AmethystHook.getItem(plugin)
+                        );
 
-                        case "emerald_hook" -> {
-                            targetPlayer.getInventory().addItem(
-                                    EmeraldHook.getItem(plugin)
-                            );
-                        }
+                        case "emerald_hook" -> targetPlayer.getInventory().addItem(
+                                EmeraldHook.getItem(plugin)
+                        );
 
-                        case "diamond_hook" -> {
-                            targetPlayer.getInventory().addItem(
-                                    DiamondHook.getItem(plugin)
-                            );
-                        }
+                        case "diamond_hook" -> targetPlayer.getInventory().addItem(
+                                DiamondHook.getItem(plugin)
+                        );
 
-                        case "ruby_hook" -> {
-                            targetPlayer.getInventory().addItem(
-                                    RubyHook.getItem(plugin)
-                            );
-                        }
+                        case "ruby_hook" -> targetPlayer.getInventory().addItem(
+                                RubyHook.getItem(plugin)
+                        );
 
-                        case "wand_of_sparking" -> {
-                            targetPlayer.getInventory().addItem(
-                                    WandOfSparking.getItem(plugin)
-                            );
-                        }
+                        case "wand_of_sparking" -> targetPlayer.getInventory().addItem(
+                                WandOfSparking.getItem(plugin)
+                        );
 
-                        case "step_stool" -> {
-                            targetPlayer.getInventory().addItem(
-                                    StepStool.getItem(plugin)
-                            );
-                        }
+                        case "step_stool" -> targetPlayer.getInventory().addItem(
+                                StepStool.getItem(plugin)
+                        );
 
-                        case "iron_francisca" -> {
-                            targetPlayer.getInventory().addItem(
-                                    IronFrancisca.getItem(plugin)
-                            );
-                        }
+                        case "iron_francisca" -> targetPlayer.getInventory().addItem(
+                                IronFrancisca.getItem(plugin)
+                        );
 
-                        case "glaive" -> {
-                            targetPlayer.getInventory().addItem(
-                                    Glaive.getItem(plugin)
-                            );
-                        }
+                        case "glaive" -> targetPlayer.getInventory().addItem(
+                                Glaive.getItem(plugin)
+                        );
 
-                        case "consecrated_water" -> {
-                            targetPlayer.getInventory().addItem(
-                                    ConsecratedWater.getItem(plugin)
-                            );
-                        }
+                        case "consecrated_water" -> targetPlayer.getInventory().addItem(
+                                ConsecratedWater.getItem(plugin)
+                        );
 
-                        case "desecrated_water" -> {
-                            targetPlayer.getInventory().addItem(
-                                    DesecratedWater.getItem(plugin)
-                            );
-                        }
+                        case "desecrated_water" -> targetPlayer.getInventory().addItem(
+                                DesecratedWater.getItem(plugin)
+                        );
 
-                        case "coin_of_deceit" -> {
-                            targetPlayer.getInventory().addItem(
-                                    CoinOfDeceit.getItem(plugin)
-                            );
-                        }
+                        case "coin_of_deceit" -> targetPlayer.getInventory().addItem(
+                                CoinOfDeceit.getItem(plugin)
+                        );
 
-                        case "exorcism" -> {
-                            targetPlayer.getInventory().addItem(
-                                    Exorcism.getItem(plugin)
-                            );
-                        }
+                        case "exorcism" -> targetPlayer.getInventory().addItem(
+                                Exorcism.getItem(plugin)
+                        );
 
                         case "unholy_core" -> {
 
@@ -1732,23 +1399,17 @@ if (finalArgument.equals("permanent")
                             targetPlayer.getInventory().addItem(item);
                         }
 
-                        case "ruin_medallion" -> {
-                            targetPlayer.getInventory().addItem(
-                                    RuinMedallion.getItem(plugin)
-                            );
-                        }
+                        case "ruin_medallion" -> targetPlayer.getInventory().addItem(
+                                RuinMedallion.getItem(plugin)
+                        );
 
-                        case "rogue_emblem" -> {
-                            targetPlayer.getInventory().addItem(
-                                    RougeEmblem.getItem(plugin)
-                            );
-                        }
+                        case "rogue_emblem" -> targetPlayer.getInventory().addItem(
+                                RougeEmblem.getItem(plugin)
+                        );
 
-                        case "silencing_sheath" -> {
-                            targetPlayer.getInventory().addItem(
-                                    SilencingSheath.getItem(plugin)
-                            );
-                        }
+                        case "silencing_sheath" -> targetPlayer.getInventory().addItem(
+                                SilencingSheath.getItem(plugin)
+                        );
 
                         case "desert_prowler_armor" -> {
 
@@ -1769,129 +1430,91 @@ if (finalArgument.equals("permanent")
                             );
                         }
 
-                        case "life_drain" -> {
-                            targetPlayer.getInventory().addItem(
-                                    LifeDrain.getItem(plugin)
-                            );
-                        }
+                        case "life_drain" -> targetPlayer.getInventory().addItem(
+                                LifeDrain.getItem(plugin)
+                        );
 
-                        case "blazing_star" -> {
-                            targetPlayer.getInventory().addItem(
-                                    BlazingStar.getItem(plugin)
-                            );
-                        }
+                        case "blazing_star" -> targetPlayer.getInventory().addItem(
+                                BlazingStar.getItem(plugin)
+                        );
 
-                        case "enchanted_axe" -> {
-                            targetPlayer.getInventory().addItem(
-                                    EnchantedAxe.getItem(plugin)
-                            );
-                        }
+                        case "enchanted_axe" -> targetPlayer.getInventory().addItem(
+                                EnchantedAxe.getItem(plugin)
+                        );
 
-                        case "brimlash" -> {
-                            targetPlayer.getInventory().addItem(
-                                    Brimlash.getItem(plugin)
-                            );
-                        }
+                        case "brimlash" -> targetPlayer.getInventory().addItem(
+                                Brimlash.getItem(plugin)
+                        );
 
-                        case "ironskin_potion" -> {
-                            targetPlayer.getInventory().addItem(
-                                    IronSkinPotion.getItem(plugin)
-                            );
-                        }
+                        case "ironskin_potion" -> targetPlayer.getInventory().addItem(
+                                IronSkinPotion.getItem(plugin)
+                        );
 
-                        case "builder_potion" -> {
-                            targetPlayer.getInventory().addItem(
-                                    BuilderPotion.getItem(plugin)
-                            );
-                        }
+                        case "builder_potion" -> targetPlayer.getInventory().addItem(
+                                BuilderPotion.getItem(plugin)
+                        );
 
-                        case "titan_potion" -> {
-                            targetPlayer.getInventory().addItem(
-                                    TitanPotion.getItem(plugin)
-                            );
-                        }
+                        case "titan_potion" -> targetPlayer.getInventory().addItem(
+                                TitanPotion.getItem(plugin)
+                        );
 
-                        case "mining_potion" -> {
-                            targetPlayer.getInventory().addItem(
-                                    MiningPotion.getItem(plugin)
-                            );
-                        }
+                        case "mining_potion" -> targetPlayer.getInventory().addItem(
+                                MiningPotion.getItem(plugin)
+                        );
 
-                        case "endurance_potion" -> {
-                            targetPlayer.getInventory().addItem(
-                                    EndurancePotion.getItem(plugin)
-                            );
-                        }
+                        case "endurance_potion" -> targetPlayer.getInventory().addItem(
+                                EndurancePotion.getItem(plugin)
+                        );
 
-                        case "wrath_potion" -> {
-                            targetPlayer.getInventory().addItem(
-                                    WrathPotion.getItem(plugin)
-                            );
-                        }
+                        case "wrath_potion" -> targetPlayer.getInventory().addItem(
+                                WrathPotion.getItem(plugin)
+                        );
 
-                        case "rage_potion" -> {
-                            targetPlayer.getInventory().addItem(
-                                    RagePotion.getItem(plugin)
-                            );
-                        }
+                        case "rage_potion" -> targetPlayer.getInventory().addItem(
+                                RagePotion.getItem(plugin)
+                        );
 
-                        case "magic_power_potion" -> {
-                            targetPlayer.getInventory().addItem(
-                                    MagicPowerPotion.getItem(plugin)
-                            );
-                        }
+                        case "magic_power_potion" -> targetPlayer.getInventory().addItem(
+                                MagicPowerPotion.getItem(plugin)
+                        );
 
-                        case "seafood_dinner" -> {
-                            targetPlayer.getInventory().addItem(
-                                    SeafoodDinner.getItem(plugin)
-                            );
-                        }
+                        case "seafood_dinner" -> targetPlayer.getInventory().addItem(
+                                SeafoodDinner.getItem(plugin)
+                        );
 
-                        case "armored_cavefish" -> {
-                            targetPlayer.getInventory().addItem(
-                                    ArmoredCavefish.getItem(plugin)
-                            );
-                        }
+                        case "armored_cavefish" -> targetPlayer.getInventory().addItem(
+                                ArmoredCavefish.getItem(plugin)
+                        );
 
-                        case "hemopiranha" -> {
-                            targetPlayer.getInventory().addItem(
-                                    Hemopiranha.getItem(plugin)
-                            );
-                        }
+                        case "hemopiranha" -> targetPlayer.getInventory().addItem(
+                                Hemopiranha.getItem(plugin)
+                        );
 
-                        case "ebonkoi" -> {
-                            targetPlayer.getInventory().addItem(
-                                    Ebonkoi.getItem(plugin)
-                            );
-                        }
+                        case "ebonkoi" -> targetPlayer.getInventory().addItem(
+                                Ebonkoi.getItem(plugin)
+                        );
 
-                        case "brimstone_fury" -> {
-                            targetPlayer.getInventory().addItem(
-                                    BrimstoneFury.getItem(plugin)
-                            );
-                        }
+                        case "brimstone_fury" -> targetPlayer.getInventory().addItem(
+                                BrimstoneFury.getItem(plugin)
+                        );
 
-                        case "crossed_heart_necklace" -> {
-                            targetPlayer.getInventory().addItem(
-                                    CrossedHeartNecklace.getItem(plugin)
-                            );
-                        }
+                        case "crossed_heart_necklace" -> targetPlayer.getInventory().addItem(
+                                CrossedHeartNecklace.getItem(plugin)
+                        );
 
-                        case "golden_delight" -> {
-                            targetPlayer.getInventory().addItem(
-                                    GoldenDelight.getItem(plugin)
-                            );
-                        }
+                        case "golden_delight" -> targetPlayer.getInventory().addItem(
+                                GoldenDelight.getItem(plugin)
+                        );
 
-                        case "daybloom_staff" -> {
-                            targetPlayer.getInventory().addItem(
-                                    DaybloomStaff.getItem(plugin)
-                            );
-                        }
+                        case "daybloom_staff" -> targetPlayer.getInventory().addItem(
+                                DaybloomStaff.getItem(plugin)
+                        );
 
                         default -> {
+
                             player.sendMessage(
-                                    "§cUnknown item: " + itemName
+                                    "§cUnknown item: "
+                                            + itemName
                             );
 
                             return true;
@@ -1900,62 +1523,23 @@ if (finalArgument.equals("permanent")
 
                     /*
                      * ====================================================
-                     * LICENSE PROCESSING
+                     * CUSTOM DURABILITY
                      * ====================================================
                      *
-                     * Kalau command lama:
+                     * HANYA dijalankan kalau argumen terakhir adalah
+                     * angka 100-2000.
                      *
-                     * /ti give minishark
+                     * Contoh:
                      *
-                     * tidak melakukan license.
+                     * /ti give Steve enchanted_sword 1 1000
                      *
-                     * Kalau command baru:
-                     *
-                     * /ti give Steve minishark 1 7d
-                     *
-                     * maka item baru akan diberi license 7 hari.
+                     * ====================================================
                      */
 
-                    if (licensedGive) {
+                    if (customDurability != null) {
 
-                        TimedItemManager timedItemManager =
-                                TimedItemManager.getInstance();
-
-                        if (timedItemManager == null) {
-
-                            player.sendMessage(
-                                    "§cTimedItemManager belum aktif."
-                            );
-
-                            return true;
-                        }
-
-                        long durationMillis = 0;
-
-                        /*
-                         * PERMANENT
-                         */
-
-                        if (!duration.equals("permanent")) {
-
-                            long days = Long.parseLong(
-                                    duration.substring(
-                                            0,
-                                            duration.length() - 1
-                                    )
-                            );
-
-                            durationMillis =
-                                    days
-                                            * 24L
-                                            * 60L
-                                            * 60L
-                                            * 1000L;
-                        }
-
-                        /*
-                         * Cari item baru di inventory target.
-                         */
+                        CustomDurabilityManager durabilityManager =
+                                new CustomDurabilityManager(plugin);
 
                         for (int slot = 0;
                              slot < targetPlayer.getInventory().getSize();
@@ -1970,6 +1554,7 @@ if (finalArgument.equals("permanent")
 
                             if (after == null
                                     || after.getType().isAir()) {
+
                                 continue;
                             }
 
@@ -1993,20 +1578,160 @@ if (finalArgument.equals("permanent")
                             }
 
                             /*
-                             * Kalau item normal hanya dibuat 1 buah,
-                             * gunakan amount dari command.
-                             *
-                             * Contoh:
-                             *
-                             * /ti give Steve minishark 5 7d
-                             *
-                             * menjadi 5 Minishark.
+                             * APPLY AMOUNT
                              */
 
                             if (after.getAmount() == 1
                                     && requestedAmount > 1) {
 
-                                after.setAmount(requestedAmount);
+                                after.setAmount(
+                                        requestedAmount
+                                );
+                            }
+
+                            /*
+                             * APPLY CUSTOM DURABILITY
+                             */
+
+                            durabilityManager.setDurability(
+                                    after,
+                                    customDurability,
+                                    customDurability
+                            );
+
+                            targetPlayer.getInventory()
+                                    .setItem(
+                                            slot,
+                                            after
+                                    );
+                        }
+
+                        player.sendMessage(
+                                "§aBerhasil memberikan §e"
+                                        + itemName
+                                        + " §adengan durability §e"
+                                        + customDurability
+                                        + "§a."
+                        );
+
+                        if (!targetPlayer.equals(player)) {
+
+                            targetPlayer.sendMessage(
+                                    "§aKamu menerima §e"
+                                            + itemName
+                                            + " §adengan durability §e"
+                                            + customDurability
+                                            + "§a."
+                            );
+                        }
+
+                        return true;
+                    }
+
+                    /*
+                     * ====================================================
+                     * LICENSE PROCESSING
+                     * ====================================================
+                     *
+                     * HANYA dijalankan jika:
+                     *
+                     * licensedGive == true
+                     *
+                     * ====================================================
+                     */
+
+                    if (licensedGive) {
+
+                        TimedItemManager timedItemManager =
+                                TimedItemManager.getInstance();
+
+                        if (timedItemManager == null) {
+
+                            player.sendMessage(
+                                    "§cTimedItemManager belum aktif."
+                            );
+
+                            return true;
+                        }
+
+                        long durationMillis = 0;
+
+                        /*
+                         * =================================================
+                         * CALCULATE DURATION
+                         * =================================================
+                         */
+
+                        if (!duration.equals("permanent")) {
+
+                            long days =
+                                    Long.parseLong(
+                                            duration.substring(
+                                                    0,
+                                                    duration.length() - 1
+                                            )
+                                    );
+
+                            durationMillis =
+                                    days
+                                            * 24L
+                                            * 60L
+                                            * 60L
+                                            * 1000L;
+                        }
+
+                        /*
+                         * =================================================
+                         * FIND NEW ITEM
+                         * =================================================
+                         */
+
+                        for (int slot = 0;
+                             slot < targetPlayer.getInventory().getSize();
+                             slot++) {
+
+                            ItemStack before =
+                                    inventoryBefore[slot];
+
+                            ItemStack after =
+                                    targetPlayer.getInventory()
+                                            .getItem(slot);
+
+                            if (after == null
+                                    || after.getType().isAir()) {
+
+                                continue;
+                            }
+
+                            boolean changed;
+
+                            if (before == null
+                                    || before.getType().isAir()) {
+
+                                changed = true;
+
+                            } else {
+
+                                changed =
+                                        !before.isSimilar(after)
+                                                || before.getAmount()
+                                                != after.getAmount();
+                            }
+
+                            if (!changed) {
+                                continue;
+                            }
+
+                            /*
+                             * APPLY AMOUNT
+                             */
+
+                            if (after.getAmount() == 1
+                                    && requestedAmount > 1) {
+
+                                after.setAmount(
+                                        requestedAmount
+                                );
                             }
 
                             /*
@@ -2015,26 +1740,31 @@ if (finalArgument.equals("permanent")
 
                             if (duration.equals("permanent")) {
 
-                                timedItemManager.applyPermanentLicense(
-                                        after
-                                );
+                                timedItemManager
+                                        .applyPermanentLicense(
+                                                after
+                                        );
 
                             } else {
 
-                                timedItemManager.applyTimedLicense(
-                                        after,
-                                        durationMillis
-                                );
+                                timedItemManager
+                                        .applyTimedLicense(
+                                                after,
+                                                durationMillis
+                                        );
                             }
 
-                            targetPlayer.getInventory().setItem(
-                                    slot,
-                                    after
-                            );
+                            targetPlayer.getInventory()
+                                    .setItem(
+                                            slot,
+                                            after
+                                    );
                         }
 
                         /*
-                         * MESSAGE
+                         * =================================================
+                         * LICENSE MESSAGE
+                         * =================================================
                          */
 
                         if (duration.equals("permanent")) {
@@ -2083,7 +1813,12 @@ if (finalArgument.equals("permanent")
                     } else {
 
                         /*
+                         * =================================================
                          * MODE LAMA
+                         * =================================================
+                         *
+                         * /ti give <item>
+                         * =================================================
                          */
 
                         if (!targetPlayer.equals(player)) {
@@ -2099,13 +1834,26 @@ if (finalArgument.equals("permanent")
                     }
                 }
 
+                /*
+                 * ====================================================
+                 * TOGGLE MESSAGE
+                 * ====================================================
+                 */
+
                 case "toggle_message" -> {
+
                     playerInstance.toggleMsg(
                             player.getUniqueId()
                     );
 
                     playerInstance.save();
                 }
+
+                /*
+                 * ====================================================
+                 * TOGGLE POTION LIST
+                 * ====================================================
+                 */
 
                 case "toggle_potion_list" -> {
 
@@ -2131,26 +1879,71 @@ if (finalArgument.equals("permanent")
                     }
                 }
 
+                /*
+                 * ====================================================
+                 * ACCESSORY
+                 * ====================================================
+                 */
+
                 case "accessory" -> {
-                    accessoryManagerInstance.openMenu(player);
+
+                    accessoryManagerInstance.openMenu(
+                            player
+                    );
                 }
+
+                /*
+                 * ====================================================
+                 * VANITY
+                 * ====================================================
+                 */
 
                 case "vanity" -> {
-                    vanityManagerInstance.openVanity(player);
+
+                    vanityManagerInstance.openVanity(
+                            player
+                    );
                 }
+
+                /*
+                 * ====================================================
+                 * RESET BONUSES
+                 * ====================================================
+                 */
 
                 case "reset_bonuses" -> {
-                    resetInstance.resetBonuses(player);
+
+                    resetInstance.resetBonuses(
+                            player
+                    );
                 }
+
+                /*
+                 * ====================================================
+                 * SHOW STATS
+                 * ====================================================
+                 */
 
                 case "show_stats" -> {
-                    playerInstance.showStats(player);
+
+                    playerInstance.showStats(
+                            player
+                    );
                 }
 
+                /*
+                 * ====================================================
+                 * UNDISCOVER
+                 * ====================================================
+                 */
+
                 case "undiscover" -> {
+
                     CustomRecipeDiscoverManager
                             .getInstance()
-                            .undiscoverAll(player);
+                            .undiscoverAll(
+                                    player
+                            );
                 }
             }
 
@@ -2174,7 +1967,8 @@ if (finalArgument.equals("permanent")
             String[] args
     ) {
 
-        List<String> completions = new ArrayList<>();
+        List<String> completions =
+                new ArrayList<>();
 
         /*
          * ============================================================
@@ -2428,27 +2222,11 @@ if (finalArgument.equals("permanent")
 
             /*
              * ========================================================
-             * /ti give <item>
-             *
-             * ATAU
-             *
-             * /ti give <player> <item> <amount> <duration>
+             * ARGUMENT 2
              * ========================================================
              */
 
             if (args.length == 2) {
-
-                /*
-                 * Tampilkan player + item.
-                 *
-                 * Jadi format lama tetap bisa:
-                 *
-                 * /ti give minishark
-                 *
-                 * dan format baru:
-                 *
-                 * /ti give Steve
-                 */
 
                 List<String> suggestions =
                         new ArrayList<>();
@@ -2469,13 +2247,13 @@ if (finalArgument.equals("permanent")
                         completions
                 );
 
-            } else if (args.length == 3) {
+            /*
+             * ========================================================
+             * ARGUMENT 3 = ITEM
+             * ========================================================
+             */
 
-                /*
-                 * ARGUMENT 3 = ITEM
-                 *
-                 * /ti give Steve <item>
-                 */
+            } else if (args.length == 3) {
 
                 StringUtil.copyPartialMatches(
                         args[2],
@@ -2483,21 +2261,24 @@ if (finalArgument.equals("permanent")
                         completions
                 );
 
+            /*
+             * ========================================================
+             * ARGUMENT 4 = AMOUNT
+             * ========================================================
+             */
+
             } else if (args.length == 4) {
 
-                /*
-                 * ARGUMENT 4 = AMOUNT
-                 */
-
-                List<String> amounts = Arrays.asList(
-                        "1",
-                        "2",
-                        "5",
-                        "10",
-                        "16",
-                        "32",
-                        "64"
-                );
+                List<String> amounts =
+                        Arrays.asList(
+                                "1",
+                                "2",
+                                "5",
+                                "10",
+                                "16",
+                                "32",
+                                "64"
+                        );
 
                 StringUtil.copyPartialMatches(
                         args[3],
@@ -2505,27 +2286,37 @@ if (finalArgument.equals("permanent")
                         completions
                 );
 
+            /*
+             * ========================================================
+             * ARGUMENT 5 = DURABILITY / DURATION
+             * ========================================================
+             */
+
             } else if (args.length == 5) {
 
-                /*
-                 * ARGUMENT 5 = DURATION
-                 */
-
-                List<String> durations = Arrays.asList(
-                        "1d",
-                        "3d",
-                        "7d",
-                        "14d",
-                        "30d",
-                        "60d",
-                        "90d",
-                        "365d",
-                        "permanent"
-                );
+                List<String> values =
+                        Arrays.asList(
+                                "100",
+                                "250",
+                                "500",
+                                "750",
+                                "1000",
+                                "1500",
+                                "2000",
+                                "1d",
+                                "3d",
+                                "7d",
+                                "14d",
+                                "30d",
+                                "60d",
+                                "90d",
+                                "365d",
+                                "permanent"
+                        );
 
                 StringUtil.copyPartialMatches(
                         args[4],
-                        durations,
+                        values,
                         completions
                 );
             }
