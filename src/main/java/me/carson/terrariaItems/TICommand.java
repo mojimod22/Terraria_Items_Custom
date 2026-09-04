@@ -223,10 +223,10 @@ public class TICommand implements CommandExecutor, TabCompleter {
                     Player targetPlayer = player;
 
                     boolean licensedGive = false;
+        int requestedAmount = 1;
 
-                    int requestedAmount = 1;
-
-                    String duration = null;
+        String duration = null;
+        Integer customDurability = null;
 
                     String itemName;
 
@@ -327,10 +327,95 @@ public class TICommand implements CommandExecutor, TabCompleter {
                         }
 
                         /*
-                         * DURATION
-                         */
+ * ============================================================
+ * DURATION / CUSTOM DURABILITY
+ * ============================================================
+ *
+ * 7d / 14d / 30d / permanent
+ * = LICENSE
+ *
+ * 100 - 2000
+ * = CUSTOM DURABILITY
+ * ============================================================
+ */
 
-                        duration = args[4].toLowerCase();
+String finalArgument = args[4].toLowerCase();
+
+/*
+ * LICENSE MODE
+ */
+if (finalArgument.equals("permanent")
+        || finalArgument.matches("\\d+d")) {
+
+    duration = finalArgument;
+    licensedGive = true;
+
+    if (!duration.equals("permanent")) {
+
+        try {
+
+            long days = Long.parseLong(
+                    duration.substring(
+                            0,
+                            duration.length() - 1
+                    )
+            );
+
+            if (days <= 0) {
+
+                player.sendMessage(
+                        "§cDurasi harus lebih dari 0 hari."
+                );
+
+                return true;
+            }
+
+        } catch (NumberFormatException exception) {
+
+            player.sendMessage(
+                    "§cDurasi tidak valid."
+            );
+
+            return true;
+        }
+    }
+
+/*
+ * CUSTOM DURABILITY MODE
+ */
+} else {
+
+    try {
+
+        customDurability = Integer.parseInt(finalArgument);
+
+        if (customDurability < 100
+                || customDurability > 2000) {
+
+            player.sendMessage(
+                    "§cDurability harus antara §e100 §cdan §e2000."
+            );
+
+            return true;
+        }
+
+    } catch (NumberFormatException exception) {
+
+        player.sendMessage(
+                "§cNilai terakhir harus berupa:"
+        );
+
+        player.sendMessage(
+                "§7Durability: §e100-2000"
+        );
+
+        player.sendMessage(
+                "§7Duration: §e7d, 14d, 30d, permanent"
+        );
+
+        return true;
+    }
+}
 
                         licensedGive = true;
 
