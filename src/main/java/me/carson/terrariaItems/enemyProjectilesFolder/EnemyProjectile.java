@@ -38,6 +38,7 @@ public abstract class EnemyProjectile implements Listener {
             Particle.DustOptions particle
     ) {
         this.plugin = plugin;
+        this.damage = damage;
         this.projSpeed = projSpeed;
         this.texture = texture;
         this.id = id;
@@ -59,7 +60,11 @@ public abstract class EnemyProjectile implements Listener {
         Location loc = shooter.getEyeLocation();
         Location targetLoc = target.getEyeLocation();
 
-        loc.add(loc.getDirection().normalize().multiply(0.1));
+        loc.add(
+                loc.getDirection()
+                        .normalize()
+                        .multiply(0.1)
+        );
 
         Vector dir = targetLoc.toVector()
                 .subtract(loc.toVector())
@@ -76,21 +81,32 @@ public abstract class EnemyProjectile implements Listener {
         loc.setDirection(dir);
 
         ItemDisplay proj = (ItemDisplay) shooter.getWorld()
-                .spawnEntity(loc, EntityType.ITEM_DISPLAY);
+                .spawnEntity(
+                        loc,
+                        EntityType.ITEM_DISPLAY
+                );
 
-        ItemStack item = new ItemStack(Material.IRON_NUGGET);
+        ItemStack item = new ItemStack(
+                Material.IRON_NUGGET
+        );
 
         ItemMeta meta = item.getItemMeta();
 
         meta.setItemModel(
-                new NamespacedKey("terraria", texture)
+                new NamespacedKey(
+                        "terraria",
+                        texture
+                )
         );
 
         item.setItemMeta(meta);
 
         proj.setItemStack(item);
 
-        NamespacedKey key = new NamespacedKey(plugin, id);
+        NamespacedKey key = new NamespacedKey(
+                plugin,
+                id
+        );
 
         proj.getPersistentDataContainer().set(
                 key,
@@ -125,158 +141,191 @@ public abstract class EnemyProjectile implements Listener {
         final int[] blocksBounced = {0};
         final Vector[] direction = {dir};
 
-        Bukkit.getScheduler().runTaskTimer(plugin, task -> {
+        Bukkit.getScheduler().runTaskTimer(
+                plugin,
+                task -> {
 
-            if (proj.isDead()) {
-                task.cancel();
-                return;
-            }
-
-            tick[0]++;
-
-            if (tick[0] >= duration) {
-                proj.remove();
-                task.cancel();
-                return;
-            }
-
-            // =========================
-            // BLOCK HANDLING
-            // =========================
-
-            Location now = proj.getLocation();
-            Location next = now.clone().add(direction[0]);
-
-            float dist = (float) now.distance(next);
-
-            RayTraceResult result = shooter.getWorld().rayTrace(
-                    now,
-                    now.getDirection(),
-                    dist,
-                    FluidCollisionMode.NEVER,
-                    true,
-                    0.1,
-                    e -> (e.getType() != proj.getType()) && (e != shooter)
-            );
-
-            if (result != null) {
-
-                if (result.getHitBlock() != null) {
-
-                    if (!result.getHitBlock().isPassable()
-                            && result.getHitBlockFace() != null) {
-
-                        hitBlockEffect(result.getHitBlock());
-
-                        if (blocksBounced[0] >= bounces) {
-                            proj.remove();
-                            task.cancel();
-                            return;
-                        } else {
-
-                            blocksBounced[0]++;
-
-                            direction[0] = bounce(
-                                    direction[0],
-                                    result.getHitBlockFace()
-                            );
-
-                            next = now.clone().add(direction[0]);
-                        }
-                    }
-                }
-
-                // =========================
-                // ENTITY HANDLING
-                // =========================
-
-                if (result.getHitEntity() != null) {
-
-                    if (result.getHitEntity() instanceof LivingEntity target) {
-
-                        int temp = target.getMaximumNoDamageTicks();
-
-                        target.setMaximumNoDamageTicks(0);
-
-                        DamageSource source = DamageSource
-                                .builder(damageType)
-                                .withCausingEntity(shooter)
-                                .withDirectEntity(shooter)
-                                .build();
-
-                        // =====================================
-                        // TERRARIA PROJECTILE DAMAGE ×3
-                        // =====================================
-
-                        double finalDamage =
-                                (damage + weaponDamage) * 3.0;
-
-                        target.damage(
-                                finalDamage,
-                                source
-                        );
-
-                        hitEntityEffect(target);
-
-                        target.setMaximumNoDamageTicks(temp);
+                    if (proj.isDead()) {
+                        task.cancel();
+                        return;
                     }
 
-                    if (enemiesHit[0] >= peirce) {
+                    tick[0]++;
 
+                    if (tick[0] >= duration) {
                         proj.remove();
                         task.cancel();
                         return;
-
-                    } else {
-
-                        enemiesHit[0]++;
                     }
-                }
-            }
 
-            // =========================
-            // PROJECTILE ROTATION
-            // =========================
+                    // =========================
+                    // BLOCK HANDLING
+                    // =========================
 
-            Vector norm = direction[0]
-                    .clone()
-                    .normalize();
+                    Location now = proj.getLocation();
 
-            float yaw = (float) Math.toDegrees(
-                    Math.atan2(-norm.getX(), norm.getZ())
-            );
+                    Location next = now.clone()
+                            .add(direction[0]);
 
-            float pitch = (float) Math.toDegrees(
-                    Math.asin(-norm.getY())
-            );
+                    float dist =
+                            (float) now.distance(next);
 
-            next.setYaw(yaw);
-            next.setPitch(pitch);
+                    RayTraceResult result =
+                            shooter.getWorld().rayTrace(
+                                    now,
+                                    now.getDirection(),
+                                    dist,
+                                    FluidCollisionMode.NEVER,
+                                    true,
+                                    0.1,
+                                    e ->
+                                            (e.getType() != proj.getType())
+                                                    && (e != shooter)
+                            );
 
-            proj.teleport(next);
+                    if (result != null) {
 
-            // =========================
-            // PARTICLE
-            // =========================
+                        if (result.getHitBlock() != null) {
 
-            if (particle != null && tick[0] > 2) {
+                            if (!result.getHitBlock().isPassable()
+                                    && result.getHitBlockFace() != null) {
 
-                proj.getWorld().spawnParticle(
-                        Particle.DUST,
-                        now,
-                        1,
-                        0,
-                        0,
-                        0,
-                        0,
-                        particle
-                );
-            }
+                                hitBlockEffect(
+                                        result.getHitBlock()
+                                );
 
-        }, 1L, 1L);
+                                if (blocksBounced[0] >= bounces) {
+
+                                    proj.remove();
+                                    task.cancel();
+                                    return;
+
+                                } else {
+
+                                    blocksBounced[0]++;
+
+                                    direction[0] = bounce(
+                                            direction[0],
+                                            result.getHitBlockFace()
+                                    );
+
+                                    next = now.clone()
+                                            .add(direction[0]);
+                                }
+                            }
+                        }
+
+                        // =========================
+                        // ENTITY HANDLING
+                        // =========================
+
+                        if (result.getHitEntity() != null) {
+
+                            if (result.getHitEntity()
+                                    instanceof LivingEntity target) {
+
+                                int temp =
+                                        target.getMaximumNoDamageTicks();
+
+                                target.setMaximumNoDamageTicks(0);
+
+                                DamageSource source =
+                                        DamageSource
+                                                .builder(damageType)
+                                                .withCausingEntity(shooter)
+                                                .withDirectEntity(shooter)
+                                                .build();
+
+                                // =================================
+                                // TERRARIA PROJECTILE DAMAGE ×3
+                                // =================================
+
+                                double finalDamage =
+                                        (damage + weaponDamage) * 3.0;
+
+                                target.damage(
+                                        finalDamage,
+                                        source
+                                );
+
+                                hitEntityEffect(target);
+
+                                target.setMaximumNoDamageTicks(
+                                        temp
+                                );
+                            }
+
+                            if (enemiesHit[0] >= peirce) {
+
+                                proj.remove();
+                                task.cancel();
+                                return;
+
+                            } else {
+
+                                enemiesHit[0]++;
+                            }
+                        }
+                    }
+
+                    // =========================
+                    // PROJECTILE ROTATION
+                    // =========================
+
+                    Vector norm =
+                            direction[0]
+                                    .clone()
+                                    .normalize();
+
+                    float yaw =
+                            (float) Math.toDegrees(
+                                    Math.atan2(
+                                            -norm.getX(),
+                                            norm.getZ()
+                                    )
+                            );
+
+                    float pitch =
+                            (float) Math.toDegrees(
+                                    Math.asin(
+                                            -norm.getY()
+                                    )
+                            );
+
+                    next.setYaw(yaw);
+                    next.setPitch(pitch);
+
+                    proj.teleport(next);
+
+                    // =========================
+                    // PARTICLE
+                    // =========================
+
+                    if (particle != null
+                            && tick[0] > 2) {
+
+                        proj.getWorld().spawnParticle(
+                                Particle.DUST,
+                                now,
+                                1,
+                                0,
+                                0,
+                                0,
+                                0,
+                                particle
+                        );
+                    }
+
+                },
+                1L,
+                1L
+        );
     }
 
-    private Vector bounce(Vector currentDir, BlockFace face) {
+    private Vector bounce(
+            Vector currentDir,
+            BlockFace face
+    ) {
 
         Vector v = currentDir.clone();
 
@@ -295,19 +344,31 @@ public abstract class EnemyProjectile implements Listener {
         return v;
     }
 
-    private void faceDirection(ItemDisplay proj, Vector dir) {
+    private void faceDirection(
+            ItemDisplay proj,
+            Vector dir
+    ) {
 
-        Vector norm = dir.clone().normalize();
+        Vector norm =
+                dir.clone().normalize();
 
-        float yaw = (float) Math.toDegrees(
-                Math.atan2(-norm.getX(), norm.getZ())
-        );
+        float yaw =
+                (float) Math.toDegrees(
+                        Math.atan2(
+                                -norm.getX(),
+                                norm.getZ()
+                        )
+                );
 
-        float pitch = (float) Math.toDegrees(
-                Math.asin(-norm.getY())
-        );
+        float pitch =
+                (float) Math.toDegrees(
+                        Math.asin(
+                                -norm.getY()
+                        )
+                );
 
-        Location loc = proj.getLocation();
+        Location loc =
+                proj.getLocation();
 
         loc.setYaw(yaw);
         loc.setPitch(pitch);
@@ -315,7 +376,11 @@ public abstract class EnemyProjectile implements Listener {
         proj.teleport(loc);
     }
 
-    public abstract void hitEntityEffect(LivingEntity entity);
+    public abstract void hitEntityEffect(
+            LivingEntity entity
+    );
 
-    public abstract void hitBlockEffect(Block block);
+    public abstract void hitBlockEffect(
+            Block block
+    );
 }
