@@ -18,73 +18,166 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class CustomDrowned extends CustomEnemy implements Listener {
 
-    private static final Set<Biome> icyBiomes = Set.of(Biome.COLD_OCEAN,Biome.DEEP_COLD_OCEAN,Biome.FROZEN_OCEAN,Biome.DEEP_FROZEN_OCEAN);
+    private static final Set<Biome> icyBiomes = Set.of(
+            Biome.COLD_OCEAN,
+            Biome.DEEP_COLD_OCEAN,
+            Biome.FROZEN_OCEAN,
+            Biome.DEEP_FROZEN_OCEAN
+    );
 
-    public CustomDrowned(Plugin plugin){
+    // 1 Terraria : 2 Vanilla
+    // = 33.33% Terraria
+    private static final double TERRARIA_SPAWN_CHANCE = 1.0 / 3.0;
+
+    public CustomDrowned(Plugin plugin) {
         super(plugin);
     }
 
     @EventHandler
-    public void onDrownedSpawn(CreatureSpawnEvent event){
-        if (event.getEntityType() != EntityType.DROWNED) return;
-        Drowned drowned = (Drowned) event.getEntity();
-        Location loc=drowned.getLocation();
+    public void onDrownedSpawn(CreatureSpawnEvent event) {
 
-        if(instance.getHardmode()&&instance.getHardmodeEnabled()){
-            if(icyBiomes.contains(loc.getBlock().getBiome())){
+        if (event.getEntityType() != EntityType.DROWNED) {
+            return;
+        }
+
+        /*
+         * Spawn ratio:
+         *
+         * 33.33% = Terraria custom mob
+         * 66.67% = Vanilla Drowned
+         */
+        if (ThreadLocalRandom.current().nextDouble() >= TERRARIA_SPAWN_CHANCE) {
+            return;
+        }
+
+        Drowned drowned = (Drowned) event.getEntity();
+        Location loc = drowned.getLocation();
+
+        // =====================================================
+        // HARDMODE
+        // =====================================================
+
+        if (instance.getHardmode() && instance.getHardmodeEnabled()) {
+
+            // Icy Merman
+            if (icyBiomes.contains(loc.getBlock().getBiome())) {
                 spawnIcyMerman(drowned);
                 return;
             }
-            if(instance.getBloodMoon()){
+
+            // Zombie Merman - Blood Moon
+            if (instance.getBloodMoon()) {
                 spawnZombieMerman(drowned);
                 return;
             }
-        }else if(instance.getPreHardmodeEnabled()){
-            if(instance.getBloodMoon()){
+
+        }
+
+        // =====================================================
+        // PRE-HARDMODE
+        // =====================================================
+
+        else if (instance.getPreHardmodeEnabled()) {
+
+            // Zombie Merman - Blood Moon
+            if (instance.getBloodMoon()) {
                 spawnZombieMerman(drowned);
                 return;
             }
         }
-
     }
 
-    public void spawnIcyMerman(Drowned drowned){
-        drowned.setCustomName(lang.get("enemies","icy_merman.name"));
+    public void spawnIcyMerman(Drowned drowned) {
+
+        drowned.setCustomName(
+                lang.get("enemies", "icy_merman.name")
+        );
+
         drowned.setCustomNameVisible(false);
-        drowned.getAttribute(Attribute.MAX_HEALTH).setBaseValue(50);
+
+        drowned.getAttribute(Attribute.MAX_HEALTH)
+                .setBaseValue(50);
+
         drowned.setHealth(50);
+
         drowned.setInvisible(true);
-        NamespacedKey key = new NamespacedKey(plugin, "custom_enemy");
-        drowned.getPersistentDataContainer().set(key, PersistentDataType.STRING,"IcyMerman");
+
+        NamespacedKey key = new NamespacedKey(
+                plugin,
+                "custom_enemy"
+        );
+
+        drowned.getPersistentDataContainer().set(
+                key,
+                PersistentDataType.STRING,
+                "IcyMerman"
+        );
+
         drowned.setCanPickupItems(false);
-        EntityEquipment equipment=drowned.getEquipment();
-        equipment.setHelmet(IcyMermanHat.getItem(plugin));
+
+        EntityEquipment equipment = drowned.getEquipment();
+
+        equipment.setHelmet(
+                IcyMermanHat.getItem(plugin)
+        );
+
         equipment.setChestplate(null);
         equipment.setLeggings(null);
         equipment.setBoots(null);
         equipment.setItemInMainHand(null);
+
         equipment.setHelmetDropChance(0f);
-        startAttacks(drowned,new MermanBolt(plugin),"terraria:frost_bolt");
+
+        startAttacks(
+                drowned,
+                new MermanBolt(plugin),
+                "terraria:frost_bolt"
+        );
     }
 
-    public void spawnZombieMerman(Drowned drowned){
-        drowned.setCustomName(lang.get("enemies","zombie_merman.name"));
+    public void spawnZombieMerman(Drowned drowned) {
+
+        drowned.setCustomName(
+                lang.get("enemies", "zombie_merman.name")
+        );
+
         drowned.setCustomNameVisible(false);
-        drowned.getAttribute(Attribute.MAX_HEALTH).setBaseValue(30);
+
+        drowned.getAttribute(Attribute.MAX_HEALTH)
+                .setBaseValue(30);
+
         drowned.setHealth(30);
+
         drowned.setInvisible(true);
-        NamespacedKey key = new NamespacedKey(plugin, "custom_enemy");
-        drowned.getPersistentDataContainer().set(key, PersistentDataType.STRING,"ZombieMerman");
+
+        NamespacedKey key = new NamespacedKey(
+                plugin,
+                "custom_enemy"
+        );
+
+        drowned.getPersistentDataContainer().set(
+                key,
+                PersistentDataType.STRING,
+                "ZombieMerman"
+        );
+
         drowned.setCanPickupItems(false);
-        EntityEquipment equipment=drowned.getEquipment();
-        equipment.setHelmet(ZombieMermanHat.getItem(plugin));
+
+        EntityEquipment equipment = drowned.getEquipment();
+
+        equipment.setHelmet(
+                ZombieMermanHat.getItem(plugin)
+        );
+
         equipment.setChestplate(null);
         equipment.setLeggings(null);
         equipment.setBoots(null);
         equipment.setItemInMainHand(null);
+
         equipment.setHelmetDropChance(0f);
     }
 }
