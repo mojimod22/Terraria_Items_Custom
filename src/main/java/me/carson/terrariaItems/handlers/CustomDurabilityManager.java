@@ -3,6 +3,7 @@ package me.carson.terrariaItems.handlers;
 import org.bukkit.ChatColor;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -28,10 +29,18 @@ public class CustomDurabilityManager {
             int durability,
             int maxDurability
     ) {
-        if (item == null) return;
+        if (item == null || item.getType().isAir()) return;
 
         ItemMeta meta = item.getItemMeta();
         if (meta == null) return;
+
+        /*
+         * MATIKAN DURABILITY VANILLA
+         */
+        if (meta instanceof Damageable damageable) {
+            damageable.setUnbreakable(true);
+            damageable.setDamage(0);
+        }
 
         meta.getPersistentDataContainer().set(
                 durabilityKey,
@@ -51,6 +60,7 @@ public class CustomDurabilityManager {
     }
 
     public boolean hasDurability(ItemStack item) {
+
         if (item == null || !item.hasItemMeta()) {
             return false;
         }
@@ -64,6 +74,7 @@ public class CustomDurabilityManager {
     }
 
     public int getDurability(ItemStack item) {
+
         if (!hasDurability(item)) {
             return 0;
         }
@@ -78,6 +89,7 @@ public class CustomDurabilityManager {
     }
 
     public int getMaxDurability(ItemStack item) {
+
         if (item == null || !item.hasItemMeta()) {
             return 0;
         }
@@ -91,6 +103,11 @@ public class CustomDurabilityManager {
                 );
     }
 
+    /**
+     * Mengurangi custom durability.
+     *
+     * @return true jika item habis
+     */
     public boolean damage(ItemStack item, int amount) {
 
         if (!hasDurability(item)) {
@@ -103,11 +120,17 @@ public class CustomDurabilityManager {
         current -= amount;
 
         if (current <= 0) {
-            item.setAmount(item.getAmount() - 1);
+
+            item.setAmount(0);
+
             return true;
         }
 
-        setDurability(item, current, max);
+        setDurability(
+                item,
+                current,
+                max
+        );
 
         return false;
     }
@@ -126,7 +149,8 @@ public class CustomDurabilityManager {
                         ? meta.getLore()
                         : new ArrayList<>();
 
-        List<String> newLore = new ArrayList<>();
+        List<String> newLore =
+                new ArrayList<>();
 
         for (String line : oldLore) {
 
