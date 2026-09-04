@@ -1,5 +1,8 @@
 package me.carson.terrariaItems.enemiesFolder;
 
+import me.carson.terrariaItems.enemiesFolder.enemies.CustomDrowned;
+import me.carson.terrariaItems.enemiesFolder.enemies.CustomSkeletons;
+import me.carson.terrariaItems.enemiesFolder.enemies.CustomZombies;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
@@ -11,8 +14,6 @@ import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
-
-import java.util.Objects;
 
 public class EnemyManager implements Listener {
 
@@ -28,140 +29,157 @@ public class EnemyManager implements Listener {
 
         Bukkit.getPluginManager().registerEvents(this, plugin);
 
-        Bukkit.getPluginManager().registerEvents(new CustomZombies(plugin), plugin);
-        Bukkit.getPluginManager().registerEvents(new CustomSkeletons(plugin), plugin);
-        Bukkit.getPluginManager().registerEvents(new CustomDrowned(plugin), plugin);
+        Bukkit.getPluginManager().registerEvents(
+                new CustomZombies(plugin),
+                plugin
+        );
+
+        Bukkit.getPluginManager().registerEvents(
+                new CustomSkeletons(plugin),
+                plugin
+        );
+
+        Bukkit.getPluginManager().registerEvents(
+                new CustomDrowned(plugin),
+                plugin
+        );
     }
 
-    /**
-     * ============================================================
-     * TERRARIA CUSTOM MOB ×3 STATS
-     * ============================================================
-     *
-     * Semua mob yang mempunyai PDC "custom_enemy" akan mendapatkan:
-     *
-     * HP              ×3
-     * Attack Damage   ×3
-     * Armor           ×3
-     * Armor Toughness ×3
-     * Movement Speed  ×3
-     * Follow Range    ×3
-     *
-     * Hanya diproses satu kali per mob.
-     */
     @EventHandler
     public void onCustomEnemySpawn(CreatureSpawnEvent event) {
 
-        if (!(event.getEntity() instanceof LivingEntity entity)) {
-            return;
-        }
+        LivingEntity entity = event.getEntity();
 
-        /*
-         * Custom mob dibuat oleh CustomZombies,
-         * CustomSkeletons, atau CustomDrowned.
-         *
-         * Karena listener tersebut mengisi PDC selama
-         * CreatureSpawnEvent, kita tunggu 1 tick agar
-         * custom_enemy sudah terpasang.
-         */
         Bukkit.getScheduler().runTask(plugin, () -> {
 
-            if (!entity.isValid() || entity.isDead()) {
+            if (entity.isDead() || !entity.isValid()) {
                 return;
             }
 
-            /*
-             * Cek apakah entity merupakan Terraria custom enemy.
-             */
-            String customEnemy = entity.getPersistentDataContainer().get(
-                    key,
-                    PersistentDataType.STRING
-            );
+            String customEnemy = entity.getPersistentDataContainer()
+                    .get(key, PersistentDataType.STRING);
 
             if (customEnemy == null) {
                 return;
             }
 
             /*
-             * Jangan sampai stat dikali 3 dua kali.
+             * Prevent stats from being multiplied more than once.
              */
-            if (entity.getPersistentDataContainer().has(
-                    statsAppliedKey,
-                    PersistentDataType.BYTE
-            )) {
+            if (entity.getPersistentDataContainer()
+                    .has(statsAppliedKey, PersistentDataType.BYTE)) {
                 return;
             }
 
-            // =====================================================
-            // HP ×3
-            // =====================================================
+            // =========================
+            // MAX HEALTH ×3
+            // =========================
 
-            AttributeInstance health = entity.getAttribute(Attribute.MAX_HEALTH);
+            AttributeInstance health =
+                    entity.getAttribute(Attribute.MAX_HEALTH);
 
             if (health != null) {
 
-                double oldMaxHealth = health.getBaseValue();
+                double baseHealth = health.getBaseValue();
+                double newHealth = baseHealth * 3.0;
 
-                health.setBaseValue(oldMaxHealth * 3.0);
-
-                /*
-                 * Current HP juga ikut dinaikkan ×3.
-                 */
-                double newHealth = entity.getHealth() * 3.0;
+                health.setBaseValue(newHealth);
 
                 entity.setHealth(
-                        Math.min(newHealth, health.getValue())
+                        Math.min(
+                                entity.getHealth() * 3.0,
+                                health.getValue()
+                        )
                 );
             }
 
-            // =====================================================
+            // =========================
             // ATTACK DAMAGE ×3
-            // =====================================================
+            // =========================
 
-            multiplyAttribute(
-                    entity,
-                    Attribute.ATTACK_DAMAGE
-            );
+            AttributeInstance attack =
+                    entity.getAttribute(Attribute.ATTACK_DAMAGE);
 
-            // =====================================================
+            if (attack != null) {
+
+                double baseAttack = attack.getBaseValue();
+
+                attack.setBaseValue(
+                        baseAttack * 3.0
+                );
+            }
+
+            // =========================
             // ARMOR ×3
-            // =====================================================
+            // =========================
 
-            multiplyAttribute(
-                    entity,
-                    Attribute.ARMOR
-            );
+            AttributeInstance armor =
+                    entity.getAttribute(Attribute.ARMOR);
 
-            // =====================================================
+            if (armor != null) {
+
+                double baseArmor = armor.getBaseValue();
+
+                armor.setBaseValue(
+                        baseArmor * 3.0
+                );
+            }
+
+            // =========================
             // ARMOR TOUGHNESS ×3
-            // =====================================================
+            // =========================
 
-            multiplyAttribute(
-                    entity,
-                    Attribute.ARMOR_TOUGHNESS
-            );
+            AttributeInstance armorToughness =
+                    entity.getAttribute(Attribute.ARMOR_TOUGHNESS);
 
-            // =====================================================
+            if (armorToughness != null) {
+
+                double baseToughness =
+                        armorToughness.getBaseValue();
+
+                armorToughness.setBaseValue(
+                        baseToughness * 3.0
+                );
+            }
+
+            // =========================
             // MOVEMENT SPEED ×3
-            // =====================================================
+            // =========================
 
-            multiplyAttribute(
-                    entity,
-                    Attribute.MOVEMENT_SPEED
-            );
+            AttributeInstance speed =
+                    entity.getAttribute(Attribute.MOVEMENT_SPEED);
 
-            // =====================================================
+            if (speed != null) {
+
+                double baseSpeed =
+                        speed.getBaseValue();
+
+                speed.setBaseValue(
+                        baseSpeed * 3.0
+                );
+            }
+
+            // =========================
             // FOLLOW RANGE ×3
-            // =====================================================
+            // =========================
 
-            multiplyAttribute(
-                    entity,
-                    Attribute.FOLLOW_RANGE
-            );
+            AttributeInstance followRange =
+                    entity.getAttribute(Attribute.FOLLOW_RANGE);
 
-            /*
-             * Tandai bahwa mob ini sudah mendapatkan multiplier.
-             */
+            if (followRange != null) {
+
+                double baseFollowRange =
+                        followRange.getBaseValue();
+
+                followRange.setBaseValue(
+                        baseFollowRange * 3.0
+                );
+            }
+
+            // =========================
+            // MARK AS APPLIED
+            // =========================
+
             entity.getPersistentDataContainer().set(
                     statsAppliedKey,
                     PersistentDataType.BYTE,
@@ -171,45 +189,25 @@ public class EnemyManager implements Listener {
         });
     }
 
-    /**
-     * Mengalikan base attribute ×3.
-     */
-    private void multiplyAttribute(
-            LivingEntity entity,
-            Attribute attribute
-    ) {
-
-        AttributeInstance instance = entity.getAttribute(attribute);
-
-        if (instance == null) {
-            return;
-        }
-
-        instance.setBaseValue(
-                instance.getBaseValue() * 3.0
-        );
-    }
-
-    /**
-     * Possessed Armor tidak menerima damage FIRE_TICK.
-     */
     @EventHandler
     public void onPossessedArmor(EntityDamageEvent event) {
 
-        if (event.getCause() != EntityDamageEvent.DamageCause.FIRE_TICK) {
+        if (event.getCause()
+                != EntityDamageEvent.DamageCause.FIRE_TICK) {
             return;
         }
 
-        if (!Objects.equals(
-                event.getEntity()
-                        .getPersistentDataContainer()
-                        .get(key, PersistentDataType.STRING),
-                "PossessedArmor"
-        )) {
+        String customEnemy = event.getEntity()
+                .getPersistentDataContainer()
+                .get(
+                        key,
+                        PersistentDataType.STRING
+                );
+
+        if (!"PossessedArmor".equals(customEnemy)) {
             return;
         }
 
         event.setCancelled(true);
     }
-
 }
